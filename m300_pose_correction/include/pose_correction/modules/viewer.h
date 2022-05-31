@@ -1,20 +1,22 @@
 /*******************************************************************************
- *   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
- *
- *   @Filename: Viewer.h
- *
- *   @Author: Shun Li
- *
- *   @Email: 2015097272@qq.com
- *
- *   @Date: 2022-05-29
- *
- *   @Description:
- *
- *******************************************************************************/
+*   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
+*
+*   @Filename: viewer.h
+*
+*   @Author: Shun Li
+*
+*   @Email: 2015097272@qq.com
+*
+*   @Date: 2022-05-30
+*
+*   @Description: 
+*
+*******************************************************************************/
 
-#ifndef INCLUDE_ORB_VO_MODULES_VIEWER_H_
-#define INCLUDE_ORB_VO_MODULES_VIEWER_H_
+
+#ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_
+#define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_
+
 
 #include <iostream>
 #include <vector>
@@ -27,7 +29,7 @@
 #include <Eigen/Geometry>
 #include <pangolin/pangolin.h>
 
-namespace orb_vo {
+namespace pose_correction {
 namespace modules {
 class Viewer {
  public:
@@ -61,4 +63,5 @@ class Viewer {
 }  // namespace modules
 }  // namespace orb_vo
 
-#endif  // INCLUDE_ORB_VO_MODULES_VIEWER_H_
+
+#endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_

@@ -1,20 +1,20 @@
 /*******************************************************************************
  *   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
  *
- *   @Filename: CameraParam.h
+ *   @Filename: camera_param.h
  *
  *   @Author: Shun Li
  *
  *   @Email: 2015097272@qq.com
  *
- *   @Date: 2022-05-28
+ *   @Date: 2022-05-30
  *
  *   @Description:
  *
  *******************************************************************************/
 
-#ifndef INCLUDE_ORB_VO_MODULES_CAMERAPARAM_H_
-#define INCLUDE_ORB_VO_MODULES_CAMERAPARAM_H_
+#ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_
+#define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_
 
 #include <Eigen/Core>
 #include <iostream>
@@ -24,7 +24,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
 
-namespace orb_vo {
+namespace pose_correction {
 namespace modules {
 class CameraParam {
  public:
@@ -38,7 +38,6 @@ class CameraParam {
              (file_path_).c_str());
     }
 
-    // NOTE: 只读取第一个相机
     char camera_name[3];
     for (int k = 0; k < 3; ++k) {
       fin >> camera_name[k];
@@ -65,11 +64,10 @@ class CameraParam {
 
  public:
   std::string file_path_;
-  // 投影矩阵
   cv::Mat K_;
   cv::Mat t_;
 };
 }  // namespace modules
-}  // namespace orb_vo
+}  // namespace pose_correction
 
-#endif  // INCLUDE_ORB_VO_MODULES_CAMERAPARAM_H_
+#endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_

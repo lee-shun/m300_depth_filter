@@ -1,20 +1,20 @@
 /*******************************************************************************
  *   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
  *
- *   @Filename: Frame.h
+ *   @Filename: frame.h
  *
  *   @Author: Shun Li
  *
  *   @Email: 2015097272@qq.com
  *
- *   @Date: 2022-05-28
+ *   @Date: 2022-05-30
  *
  *   @Description:
  *
  *******************************************************************************/
 
-#ifndef INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
-#define INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
+#ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
+#define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
 
 #include <Eigen/Core>
 
@@ -25,7 +25,7 @@
 
 #include <opencv2/opencv.hpp>
 
-namespace orb_vo {
+namespace pose_correction {
 namespace modules {
 class Frame {
  public:
@@ -76,6 +76,6 @@ class Frame {
 };
 
 }  // namespace modules
-}  // namespace orb_vo
+}  // namespace pose_correction
 
-#endif  // INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
+#endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_FRAME_H_
