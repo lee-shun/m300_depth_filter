@@ -16,6 +16,8 @@
 #ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_H_
 #define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_H_
 
+#include "pose_correction/modules/system_lib.h"
+
 #include <Eigen/Core>
 #include <iostream>
 #include <string>
@@ -32,38 +34,19 @@ class Camera {
 
   explicit Camera(const std::string camera_config_file)
       : file_path_(camera_config_file) {
-    std::ifstream fin(file_path_);
-    if (!fin) {
-      printf("can not open %s in given path, no such file or directory!",
-             (file_path_).c_str());
-    }
+    YAML::Node node = YAML::LoadFile(file_path_);
+    fx_ = modules::GetParam<double>(node, "fx", 0.0f);
+    fy_ = modules::GetParam<double>(node, "fy", 0.0f);
+    cx_ = modules::GetParam<double>(node, "cx", 0.0f);
+    cy_ = modules::GetParam<double>(node, "cy", 0.0f);
 
-    char camera_name[3];
-    for (int k = 0; k < 3; ++k) {
-      fin >> camera_name[k];
-    }
-
-    double projection_data[12];
-    for (int k = 0; k < 12; ++k) {
-      fin >> projection_data[k];
-    }
-
-    Eigen::Matrix3d K;
-    K << projection_data[0], projection_data[1], projection_data[2],
-        projection_data[4], projection_data[5], projection_data[6],
-        projection_data[8], projection_data[9], projection_data[10];
-    cv::eigen2cv(K, K_);
-
-    Eigen::Vector3d t;
-    t << projection_data[3], projection_data[7], projection_data[11];
-    t = K.inverse() * t;
-
-    fin.close();
+    K_ << fx_, 0.0f, cx_, 0.0f, fy_, cy_, 0.0f, 0.0f, 1.0f;
   }
 
  public:
   std::string file_path_;
-  cv::Mat K_;
+  double fx_, fy_, cx_, cy_;
+  Eigen::Matrix3d K_;
 };
 }  // namespace modules
 }  // namespace pose_correction
