@@ -4,6 +4,7 @@ add_library(
   ORBextractor.cc
   frame.cc
   viewer.cc
+  feature_matcher.cc
 )
 
 target_link_libraries(
