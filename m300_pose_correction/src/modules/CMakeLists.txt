@@ -5,6 +5,7 @@ add_library(
   frame.cc
   viewer.cc
   feature_matcher.cc
+  dataset.cc
 )
 
 target_link_libraries(

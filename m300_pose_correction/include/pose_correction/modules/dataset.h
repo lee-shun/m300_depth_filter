@@ -26,7 +26,11 @@ namespace pose_correction {
 namespace modules {
 class Dataset {
  public:
-  explicit Dataset(const std::string dataset_path);
+  explicit Dataset(const std::string dataset_path)
+      : dataset_path_(dataset_path) {
+    trans_path_ = dataset_path_ + "/local_pose.csv";
+    img_path_ = dataset_path_ + "/rgb";
+  }
 
   bool GetAllImageNames(std::vector<cv::String>& all_image_names);
 
