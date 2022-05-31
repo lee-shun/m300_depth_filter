@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
  *
- *   @Filename: camera_param.h
+ *   @Filename: camera.h
  *
  *   @Author: Shun Li
  *
@@ -13,8 +13,8 @@
  *
  *******************************************************************************/
 
-#ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_
-#define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_
+#ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_H_
+#define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_H_
 
 #include <Eigen/Core>
 #include <iostream>
@@ -26,11 +26,11 @@
 
 namespace pose_correction {
 namespace modules {
-class CameraParam {
+class Camera {
  public:
-  typedef std::shared_ptr<CameraParam> Ptr;
+  typedef std::shared_ptr<Camera> Ptr;
 
-  explicit CameraParam(const std::string camera_config_file)
+  explicit Camera(const std::string camera_config_file)
       : file_path_(camera_config_file) {
     std::ifstream fin(file_path_);
     if (!fin) {
@@ -57,7 +57,6 @@ class CameraParam {
     Eigen::Vector3d t;
     t << projection_data[3], projection_data[7], projection_data[11];
     t = K.inverse() * t;
-    cv::eigen2cv(t, t_);
 
     fin.close();
   }
@@ -65,9 +64,8 @@ class CameraParam {
  public:
   std::string file_path_;
   cv::Mat K_;
-  cv::Mat t_;
 };
 }  // namespace modules
 }  // namespace pose_correction
 
-#endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_PARAM_H_
+#endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_CAMERA_H_
