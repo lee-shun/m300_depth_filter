@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <opencv2/opencv.hpp>
+#include <sophus/se3.hpp>
 
 namespace pose_correction {
 namespace modules {
@@ -32,9 +33,12 @@ class Frame {
   typedef std::shared_ptr<Frame> Ptr;
   Frame() {}
 
+  Frame(const uint64_t id, const cv::Mat& img, Sophus::SE3d Twc)
+      : img_(img), id_(id), Twc_(Twc) {}
+
   Frame(const uint64_t id, const cv::Mat& img, const Eigen::Matrix3d& R,
         const Eigen::Vector3d& t)
-      : img_(img), id_(id), R_(R), t_(t) {}
+      : img_(img), id_(id), Twc_(Sophus::SE3d(R, t)) {}
 
   /**
    * 创建空的frame, 分配id
@@ -51,28 +55,13 @@ class Frame {
    * */
   bool DetectFeatures();
 
-  void GetRT(Eigen::Matrix3d& R, Eigen::Vector3d& t) {
-    std::unique_lock<std::mutex> lck(pose_mutex_);
-    R = R_;
-    t = t_;
-  }
-
-  void SetRT(const Eigen::Matrix3d& R, const Eigen::Vector3d& t) {
-    std::unique_lock<std::mutex> lck(pose_mutex_);
-    R_ = R;
-    t_ = t;
-  }
-
   cv::Mat img_;
   uint64_t id_;
 
   std::vector<cv::KeyPoint> keypoints_;
   cv::Mat descriptors_;
 
- private:
-  std::mutex pose_mutex_;
-  Eigen::Matrix3d R_;
-  Eigen::Vector3d t_;
+  Sophus::SE3d Twc_;
 };
 
 }  // namespace modules
