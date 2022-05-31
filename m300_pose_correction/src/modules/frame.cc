@@ -25,14 +25,20 @@ bool Frame::DetectFeatures() {
     return false;
   }
 
-  // 清空上一次的检测
-  keypoints_.clear();
-
   auto orb_extractor_ptr =
       std::make_shared<ORB::ORBextractor>(1000, 1.2, 8, 20, 7);
-  orb_extractor_ptr->operator()(img_, cv::Mat(), keypoints_, descriptors_);
+  orb_extractor_ptr->operator()(img_, cv::Mat(), kps_, descriptors_);
+
+  cv::KeyPoint::convert(kps_, kps_pt_);
 
   return true;
+}
+
+Frame::Ptr Frame::CreateFrame() {
+  static uint64_t factory_id;
+  Frame::Ptr new_frame(new Frame);
+  new_frame->id_ = factory_id++;
+  return new_frame;
 }
 
 }  // namespace modules

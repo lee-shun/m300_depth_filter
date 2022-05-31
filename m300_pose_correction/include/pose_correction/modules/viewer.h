@@ -1,22 +1,20 @@
 /*******************************************************************************
-*   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
-*
-*   @Filename: viewer.h
-*
-*   @Author: Shun Li
-*
-*   @Email: 2015097272@qq.com
-*
-*   @Date: 2022-05-30
-*
-*   @Description: 
-*
-*******************************************************************************/
-
+ *   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
+ *
+ *   @Filename: viewer.h
+ *
+ *   @Author: Shun Li
+ *
+ *   @Email: 2015097272@qq.com
+ *
+ *   @Date: 2022-05-30
+ *
+ *   @Description:
+ *
+ *******************************************************************************/
 
 #ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_
 #define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_
-
 
 #include <iostream>
 #include <vector>
@@ -47,9 +45,7 @@ class Viewer {
 
   void Update(const TrajType traj);
 
-
  private:
-
   void DrawTrajectory();
 
   std::mutex traj_mutex_;
@@ -59,9 +55,7 @@ class Viewer {
   std::atomic<bool> viewer_running_;
 };
 
-
 }  // namespace modules
-}  // namespace orb_vo
-
+}  // namespace pose_correction
 
 #endif  // M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_

@@ -43,22 +43,27 @@ class Frame {
   /**
    * 创建空的frame, 分配id
    * */
-  static Frame::Ptr CreateFrame() {
-    static uint64_t factory_id;
-    Frame::Ptr new_frame(new Frame);
-    new_frame->id_ = factory_id++;
-    return new_frame;
-  }
+  static Frame::Ptr CreateFrame();
 
   /**
    * 提取特征点, 计算描述子
    * */
   bool DetectFeatures();
 
+  /**
+   * clear feature points
+   * */
+  void ClearFeatures() {
+    kps_.clear();
+    kps_pt_.clear();
+  }
+
+ public:
   cv::Mat img_;
   uint64_t id_;
 
-  std::vector<cv::KeyPoint> keypoints_;
+  std::vector<cv::KeyPoint> kps_;
+  std::vector<cv::Point2f> kps_pt_;
   cv::Mat descriptors_;
 
   Sophus::SE3d Twc_;
