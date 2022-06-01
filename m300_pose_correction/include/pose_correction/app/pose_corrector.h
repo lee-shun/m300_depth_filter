@@ -16,13 +16,41 @@
 #ifndef M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_APP_POSE_CORRECTOR_H_
 #define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_APP_POSE_CORRECTOR_H_
 
-#include <iostream>
+#include "pose_correction/modules/dataset.h"
+#include "pose_correction/modules/camera.h"
+#include "pose_correction/modules/viewer.h"
+#include "pose_correction/modules/frame.h"
+#include "pose_correction/modules/feature_matcher.h"
+
+#include <vector>
 
 namespace pose_correction {
 namespace app {
 class PoseCorrector {
-  public:
-    PoseCorrector();
+ public:
+  PoseCorrector();
+
+  void Run();
+
+ private:
+  /**
+   * track with Optical Flow
+   * */
+  void TrackFeatures(const modules::Frame::Ptr ref_frame,
+                     const modules::Frame::Ptr cur_frame,
+                     std::vector<cv::Point2f>& tracked_pts_ref,
+                     std::vector<cv::Point2f>& tracked_pts_cur);
+
+  void EstimatePose(const std::vector<cv::Point2f>& pts_ref,
+                    const std::vector<cv::Point2f>& pts_cur, const double scale,
+                    const modules::Frame::Ptr ref_frame,
+                    modules::Frame::Ptr cur_frame);
+
+  modules::Dataset::Ptr dataset_;
+  modules::Camera::Ptr camera_;
+  modules::Viewer::Ptr viewer_;
+
+  modules::FeatureMatcher::Ptr feat_matcher_;
 };
 }  // namespace app
 }  // namespace pose_correction

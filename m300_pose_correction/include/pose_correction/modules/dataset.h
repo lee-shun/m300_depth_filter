@@ -17,6 +17,7 @@
 #define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_DATASET_H_
 
 #include <Eigen/Core>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -26,6 +27,8 @@ namespace pose_correction {
 namespace modules {
 class Dataset {
  public:
+  typedef std::shared_ptr<Dataset> Ptr;
+
   explicit Dataset(const std::string dataset_path)
       : dataset_path_(dataset_path) {
     trans_path_ = dataset_path_ + "/local_pose.csv";
