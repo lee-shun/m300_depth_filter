@@ -37,7 +37,8 @@ class FeatureMatcher {
   void MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
                        const modules::Frame::Ptr cur_frame,
                        std::vector<cv::Point2f>& tracked_pts_ref,
-                       std::vector<cv::Point2f>& tracked_pts_cur);
+                       std::vector<cv::Point2f>& tracked_pts_cur,
+                       bool show_matches = false);
 
   /**
    * TODO: 2. Area based matches

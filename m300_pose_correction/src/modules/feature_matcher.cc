@@ -21,31 +21,35 @@ namespace modules {
 void FeatureMatcher::MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
                                      const modules::Frame::Ptr cur_frame,
                                      std::vector<cv::Point2f>& match_pts_ref,
-                                     std::vector<cv::Point2f>& match_pts_cur) {
+                                     std::vector<cv::Point2f>& match_pts_cur,
+                                     bool show_matches) {
   std::vector<cv::DMatch> matches;
   cv::BFMatcher matcher(cv::NORM_HAMMING);
   matcher.match(ref_frame->descriptors_, cur_frame->descriptors_, matches);
 
-  // display
-  cv::Mat img_match;
-  cv::drawMatches(ref_frame->img_, ref_frame->kps_, cur_frame->img_,
-                  cur_frame->kps_, matches, img_match);
-  cv::imshow("matches", img_match);
-  cv::waitKey(0);
-
   std::vector<cv::DMatch> good_matches, refined_hist_matches;
 
+  // distance
   for (cv::DMatch& match : matches) {
-    if (match.distance <= 30) good_matches.push_back(match);
+    if (match.distance <= 50) good_matches.push_back(match);
   }
 
   CullWithHistConsistency(ref_frame->kps_, cur_frame->kps_, good_matches,
                           refined_hist_matches);
-  cv::Mat img_good_match;
-  cv::drawMatches(ref_frame->img_, ref_frame->kps_, cur_frame->img_,
-                  cur_frame->kps_, refined_hist_matches, img_good_match);
-  cv::imshow("matches", img_good_match);
-  cv::waitKey(0);
+
+  // fill all the refined matches
+  for (cv::DMatch& m : refined_hist_matches) {
+    match_pts_ref.push_back(ref_frame->kps_pt_[m.queryIdx]);
+    match_pts_cur.push_back(cur_frame->kps_pt_[m.trainIdx]);
+  }
+
+  if (show_matches) {
+    cv::Mat img_good_match;
+    cv::drawMatches(ref_frame->img_, ref_frame->kps_, cur_frame->img_,
+                    cur_frame->kps_, refined_hist_matches, img_good_match);
+    cv::imshow("matches", img_good_match);
+    cv::waitKey(0);
+  }
 }
 
 void FeatureMatcher::CullWithHistConsistency(

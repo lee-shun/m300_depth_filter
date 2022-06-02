@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
   std::vector<cv::Point2f> matched_pts_ref, matched_pts_cur;
   matcher.MacthFeaturesBF(ref_frame, cur_frame, matched_pts_ref,
-                          matched_pts_cur);
+                          matched_pts_cur, true);
 
   return 0;
 }
