@@ -20,25 +20,31 @@
 int main(int argc, char** argv) {
   pose_correction::modules::FeatureMatcher matcher;
 
-  cv::Mat img_ref = cv::imread(
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/rgb/"
-      "1.png",
-      cv::IMREAD_GRAYSCALE);
-  auto ref_frame = pose_correction::modules::Frame::CreateFrame();
-  ref_frame->img_ = img_ref;
-  ref_frame->DetectFeatures();
+  for (int i = 0; i < 100; ++i) {
+    cv::Mat img_ref = cv::imread(
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/"
+        "rgb/"
+        +std::to_string(i)+
+        ".png",
+        cv::IMREAD_GRAYSCALE);
+    auto ref_frame = pose_correction::modules::Frame::CreateFrame();
+    ref_frame->img_ = img_ref;
+    ref_frame->DetectFeatures();
 
-  cv::Mat img_cur = cv::imread(
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/rgb/"
-      "2.png",
-      cv::IMREAD_GRAYSCALE);
-  auto cur_frame = pose_correction::modules::Frame::CreateFrame();
-  cur_frame->img_ = img_cur;
-  cur_frame->DetectFeatures();
+    cv::Mat img_cur = cv::imread(
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/"
+        "rgb/"
+        +std::to_string(i+1)+
+        ".png",
+        cv::IMREAD_GRAYSCALE);
+    auto cur_frame = pose_correction::modules::Frame::CreateFrame();
+    cur_frame->img_ = img_cur;
+    cur_frame->DetectFeatures();
 
-  std::vector<cv::Point2f> matched_pts_ref, matched_pts_cur;
-  matcher.MacthFeaturesBF(ref_frame, cur_frame, matched_pts_ref,
-                          matched_pts_cur, true);
+    std::vector<cv::Point2f> matched_pts_ref, matched_pts_cur;
+    matcher.MacthFeaturesBF(ref_frame, cur_frame, matched_pts_ref,
+                            matched_pts_cur, true);
+  }
 
   return 0;
 }
