@@ -33,14 +33,6 @@ class PoseCorrector {
   void Run();
 
  private:
-  /**
-   * track with Optical Flow
-   * */
-  void TrackFeatures(const modules::Frame::Ptr ref_frame,
-                     const modules::Frame::Ptr cur_frame,
-                     std::vector<cv::Point2f>& tracked_pts_ref,
-                     std::vector<cv::Point2f>& tracked_pts_cur);
-
   void EstimatePose(const std::vector<cv::Point2f>& pts_ref,
                     const std::vector<cv::Point2f>& pts_cur, const double scale,
                     const modules::Frame::Ptr ref_frame,

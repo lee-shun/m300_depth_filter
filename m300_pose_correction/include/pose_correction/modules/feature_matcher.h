@@ -46,7 +46,17 @@ class FeatureMatcher {
   void MacthFeaturesArea(const modules::Frame::Ptr ref_frame,
                          const modules::Frame::Ptr cur_frame,
                          std::vector<cv::Point2f>& tracked_pts_ref,
-                         std::vector<cv::Point2f>& tracked_pts_cur);
+                         std::vector<cv::Point2f>& tracked_pts_cur,
+                         bool show_matches = false);
+
+  /**
+   * TODO: 3 LK flow
+   * */
+  void TrackFeaturesLK(const modules::Frame::Ptr ref_frame,
+                                  const modules::Frame::Ptr cur_frame,
+                                  std::vector<cv::Point2f>& tracked_pts_ref,
+                                  std::vector<cv::Point2f>& tracked_pts_cur,
+                                  bool show_trackes = false);
 
   /**
    * refine the matched points with histogram
