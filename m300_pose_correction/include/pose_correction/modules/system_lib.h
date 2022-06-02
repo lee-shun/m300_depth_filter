@@ -21,6 +21,7 @@
 #include <string>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
+#include <dirent.h>
 
 namespace pose_correction {
 namespace modules {
@@ -50,6 +51,22 @@ inline std::ifstream& SeekToLine(std::ifstream& in, const int line_nbr) {
     in.getline(buf, sizeof(buf));
   }
   return in;
+}
+
+inline size_t GetFileNum(const std::string& path) {
+  size_t fileNum = 0;
+  DIR* pDir;
+  struct dirent* ptr;
+
+  if (!(pDir = opendir(path.c_str()))) return fileNum;
+
+  while ((ptr = readdir(pDir)) != 0) {
+    if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
+      fileNum++;
+  }
+
+  closedir(pDir);
+  return fileNum;
 }
 
 }  // namespace modules

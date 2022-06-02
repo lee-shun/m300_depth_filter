@@ -76,14 +76,27 @@ void FeatureMatcher::MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
 
   // fill all the refined matches (need to check)
   for (cv::DMatch& m : refined_hist_matches) {
-    match_pts_ref.push_back(ref_frame->kps_[m.trainIdx].pt);
-    match_pts_cur.push_back(cur_frame->kps_[m.queryIdx].pt);
+    int ref_index = m.queryIdx;
+    int cur_index = m.trainIdx;
+
+    match_pts_ref.push_back(ref_frame->kps_pt_[ref_index]);
+    match_pts_cur.push_back(cur_frame->kps_pt_[cur_index]);
   }
 
   if (show_matches) {
     cv::Mat img_good_match;
-    cv::drawMatches(ref_frame->img_, ref_frame->kps_, cur_frame->img_,
-                    cur_frame->kps_, refined_hist_matches, img_good_match);
+    cv::Mat ref_show, cur_show;
+    cv::cvtColor(ref_frame->img_, ref_show, cv::COLOR_GRAY2BGR);
+    cv::cvtColor(cur_frame->img_, cur_show, cv::COLOR_GRAY2BGR);
+
+    for (size_t i = 0; i < match_pts_ref.size(); ++i) {
+      cv::circle(ref_show, match_pts_ref[i], 5, cv::Scalar(0, 250, 0), 2);
+      cv::circle(cur_show, match_pts_cur[i], 5, cv::Scalar(0, 250, 0), 2);
+    }
+
+    cv::drawMatches(ref_show, ref_frame->kps_, cur_show, cur_frame->kps_,
+                    refined_hist_matches, img_good_match);
+
     cv::imshow("matches", img_good_match);
     cv::waitKey(0);
   }

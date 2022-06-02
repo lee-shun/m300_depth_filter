@@ -31,7 +31,7 @@ PoseCorrector::PoseCorrector() {
 }
 
 void PoseCorrector::Run() {
-  std::vector<cv::String> imgs_paths;
+  std::vector<std::string> imgs_paths;
   dataset_->GetAllImageNames(imgs_paths);
   std::vector<double> frame_scales;
   dataset_->GetGroundTruthScale(frame_scales);
@@ -60,11 +60,13 @@ void PoseCorrector::Run() {
     cur_frame->img_ = cv::imread(imgs_paths[i], cv::IMREAD_GRAYSCALE);
     cur_frame->DetectFeatures();
 
+    std::cout << "img: " << imgs_paths[i] << std::endl;
+
     // feature maching
     std::vector<cv::Point2f> tracked_pts_ref;
     std::vector<cv::Point2f> tracked_pts_cur;
     feat_matcher_->MacthFeaturesBF(ref_frame, cur_frame, tracked_pts_ref,
-                                   tracked_pts_cur);
+                                   tracked_pts_cur, true);
 
     // 对极几何更新当前帧的位姿
     EstimatePose(tracked_pts_ref, tracked_pts_cur, frame_scales[i], ref_frame,
@@ -72,8 +74,8 @@ void PoseCorrector::Run() {
 
     // 将当前帧位姿存入, 更新显示
     if (viewer_) {
-      Eigen::Matrix3d R_cur = cur_frame->Twc_.rotationMatrix();
-      Eigen::Vector3d t_cur = cur_frame->Twc_.translation();
+      Eigen::Matrix3d R_cur = cur_frame->R_;
+      Eigen::Vector3d t_cur = cur_frame->t_;
       Eigen::Isometry3d T(R_cur);
       T.pretranslate(t_cur);
       traj.push_back(T);
@@ -90,25 +92,27 @@ void PoseCorrector::EstimatePose(const std::vector<cv::Point2f>& pts_ref,
                                  const double scale,
                                  const modules::Frame::Ptr ref_frame,
                                  modules::Frame::Ptr cur_frame) {
-  cv::Mat E, dR, dt, K;
+  cv::Mat E, R, t, K;
   cv::eigen2cv(camera_->K_, K);
 
-  E = cv::findEssentialMat(pts_cur, pts_ref, K, cv::RANSAC);
-  cv::recoverPose(E, pts_cur, pts_ref, K, dR, dt);
+  E = cv::findEssentialMat(pts_ref, pts_cur, K, cv::RANSAC);
+  cv::recoverPose(E, pts_ref, pts_cur, K, R, t);
 
-  Sophus::SE3d T_ref = ref_frame->Twc_;
-  Eigen::Matrix3d R, R_cur, R_ref = T_ref.rotationMatrix();
-  Eigen::Vector3d t, t_cur, t_ref = T_ref.translation();
-  cv::cv2eigen(dR, R);
-  cv::cv2eigen(dt, t);
+  Eigen::Matrix3d dR, R_ref = ref_frame->R_;
+  Eigen::Vector3d dt, t_ref = ref_frame->t_;
+
+  cv::cv2eigen(R, dR);
+  cv::cv2eigen(t, dt);
+
+  std::cout << "R: " << dR << std::endl;
+  std::cout << "t: " << dt << std::endl;
 
   // 将平移尺度归一化
-  t.normalize();
+  dt.normalize();
 
   // 更新当前帧
-  R_cur = R_ref * R;
-  t_cur = t_ref + scale * (R_ref * t);
-  cur_frame->Twc_ = Sophus::SE3d(R_cur, t_cur);
+  cur_frame->R_ = R_ref * dR;
+  cur_frame->t_ = t_ref + scale * (R_ref * dt);
 }
 
 }  // namespace app

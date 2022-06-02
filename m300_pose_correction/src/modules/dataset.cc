@@ -20,6 +20,17 @@
 
 namespace pose_correction {
 namespace modules {
+bool Dataset::GetAllImageNames(std::vector<std::string>& all_image_names) {
+  size_t image_num = modules::GetFileNum(img_path_);
+  all_image_names.clear();
+  all_image_names.reserve(image_num);
+  for (size_t i = 0; i < image_num; ++i) {
+    std::string img_name = img_path_ + "/" + std::to_string(i) + ".png";
+    all_image_names.push_back(img_name);
+  }
+  return true;
+}
+
 bool Dataset::GetAllImageNames(std::vector<cv::String>& all_image_names) {
   cv::glob(img_path_, all_image_names);
   return true;

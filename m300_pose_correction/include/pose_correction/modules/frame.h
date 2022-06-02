@@ -31,14 +31,14 @@ namespace modules {
 class Frame {
  public:
   typedef std::shared_ptr<Frame> Ptr;
-  Frame() {}
-
-  Frame(const uint64_t id, const cv::Mat& img, Sophus::SE3d Twc)
-      : img_(img), id_(id), Twc_(Twc) {}
+  Frame() {
+    R_ = Eigen::Matrix3d::Identity();
+    t_ = Eigen::Vector3d::Zero();
+  }
 
   Frame(const uint64_t id, const cv::Mat& img, const Eigen::Matrix3d& R,
         const Eigen::Vector3d& t)
-      : img_(img), id_(id), Twc_(Sophus::SE3d(R, t)) {}
+      : img_(img), id_(id), R_(R), t_(t) {}
 
   /**
    * 创建空的frame, 分配id
@@ -66,7 +66,8 @@ class Frame {
   std::vector<cv::Point2f> kps_pt_;
   cv::Mat descriptors_;
 
-  Sophus::SE3d Twc_;
+  Eigen::Matrix3d R_;
+  Eigen::Vector3d t_;
 };
 
 }  // namespace modules

@@ -37,6 +37,8 @@ class Dataset {
 
   bool GetAllImageNames(std::vector<cv::String>& all_image_names);
 
+  bool GetAllImageNames(std::vector<std::string>& all_image_names);
+
   bool GetGroundTruthScale(std::vector<double>& all_trans);
 
   /**
