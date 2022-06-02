@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 
   for (int i = 0; i < 100; ++i) {
     cv::Mat img_ref = cv::imread(
-        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/"
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2/"
         "rgb/"
         +std::to_string(i)+
         ".png",
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     ref_frame->DetectFeatures();
 
     cv::Mat img_cur = cv::imread(
-        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1/"
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2/"
         "rgb/"
         +std::to_string(i+1)+
         ".png",

@@ -45,7 +45,7 @@ void FeatureMatcher::TrackFeaturesLK(const modules::Frame::Ptr ref_frame,
   if (show_trackes) {
     cv::Mat img_to_draw;
     cv::cvtColor(cur_frame->img_.clone(), img_to_draw, cv::COLOR_GRAY2BGR);
-    for (int i = 0; i < tracked_pts_cur.size(); ++i) {
+    for (size_t i = 0; i < tracked_pts_cur.size(); ++i) {
       cv::circle(img_to_draw, tracked_pts_cur[i], 2, cv::Scalar(0, 250, 0), 2);
       cv::line(img_to_draw, tracked_pts_cur[i], tracked_pts_ref[i],
                cv::Scalar(0, 250, 0), 2);
@@ -68,13 +68,13 @@ void FeatureMatcher::MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
 
   // distance
   for (cv::DMatch& match : matches) {
-    if (match.distance <= 60) good_matches.push_back(match);
+    if (match.distance <= 50) good_matches.push_back(match);
   }
 
   CullWithHistConsistency(ref_frame->kps_, cur_frame->kps_, good_matches,
                           refined_hist_matches);
 
-  // fill all the refined matches
+  // fill all the refined matches (need to check)
   for (cv::DMatch& m : refined_hist_matches) {
     match_pts_ref.push_back(ref_frame->kps_pt_[m.queryIdx]);
     match_pts_cur.push_back(cur_frame->kps_pt_[m.trainIdx]);
