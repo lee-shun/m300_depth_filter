@@ -111,7 +111,7 @@ void PoseCorrector::EstimatePose(const std::vector<cv::Point2f>& pts_ref,
   dt.normalize();
 
   // 更新当前帧
-  cur_frame->R_ = R_ref * dR;
+  cur_frame->R_ = dR * R_ref;
   cur_frame->t_ = t_ref + scale * (R_ref * dt);
 }
 
