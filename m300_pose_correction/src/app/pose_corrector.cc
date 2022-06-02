@@ -66,7 +66,6 @@ void PoseCorrector::Run() {
     feat_matcher_->MacthFeaturesBF(ref_frame, cur_frame, tracked_pts_ref,
                                    tracked_pts_cur);
 
-
     // 对极几何更新当前帧的位姿
     EstimatePose(tracked_pts_ref, tracked_pts_cur, frame_scales[i], ref_frame,
                  cur_frame);

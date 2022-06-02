@@ -76,8 +76,8 @@ void FeatureMatcher::MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
 
   // fill all the refined matches (need to check)
   for (cv::DMatch& m : refined_hist_matches) {
-    match_pts_ref.push_back(ref_frame->kps_pt_[m.queryIdx]);
-    match_pts_cur.push_back(cur_frame->kps_pt_[m.trainIdx]);
+    match_pts_ref.push_back(ref_frame->kps_[m.trainIdx].pt);
+    match_pts_cur.push_back(cur_frame->kps_[m.queryIdx].pt);
   }
 
   if (show_matches) {
