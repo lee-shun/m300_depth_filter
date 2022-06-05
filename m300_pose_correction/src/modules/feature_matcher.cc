@@ -68,7 +68,7 @@ void FeatureMatcher::MacthFeaturesBF(const modules::Frame::Ptr ref_frame,
 
   // distance
   for (cv::DMatch& match : matches) {
-    if (match.distance <= 50) good_matches.push_back(match);
+    if (match.distance <= 20) good_matches.push_back(match);
   }
 
   CullWithHistConsistency(ref_frame->kps_, cur_frame->kps_, good_matches,

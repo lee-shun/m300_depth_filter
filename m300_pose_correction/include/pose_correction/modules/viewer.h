@@ -17,6 +17,7 @@
 #define M300_POSE_CORRECTION_INCLUDE_POSE_CORRECTION_MODULES_VIEWER_H_
 
 #include <iostream>
+#include <sophus/se3.hpp>
 #include <vector>
 #include <atomic>
 #include <mutex>
@@ -26,6 +27,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <pangolin/pangolin.h>
+#include <sophus/se3.hpp>
 
 namespace pose_correction {
 namespace modules {
@@ -35,9 +37,7 @@ class Viewer {
 
   typedef std::shared_ptr<Viewer> Ptr;
 
-  typedef std::vector<Eigen::Isometry3d,
-                      Eigen::aligned_allocator<Eigen::Isometry3d>>
-      TrajType;
+  typedef std::vector<Sophus::SE3d> TrajType;
 
   Viewer();
 

@@ -60,25 +60,21 @@ void PoseCorrector::Run() {
     cur_frame->img_ = cv::imread(imgs_paths[i], cv::IMREAD_GRAYSCALE);
     cur_frame->DetectFeatures();
 
-    std::cout << "img: " << imgs_paths[i] << std::endl;
+    std::cout << " current img: " << imgs_paths[i] << std::endl;
 
     // feature maching
-    std::vector<cv::Point2f> tracked_pts_ref;
-    std::vector<cv::Point2f> tracked_pts_cur;
-    feat_matcher_->MacthFeaturesBF(ref_frame, cur_frame, tracked_pts_ref,
-                                   tracked_pts_cur, true);
+    std::vector<cv::Point2f> matched_pts_ref;
+    std::vector<cv::Point2f> matched_pts_cur;
+    feat_matcher_->MacthFeaturesBF(ref_frame, cur_frame, matched_pts_ref,
+                                   matched_pts_cur, true);
 
     // 对极几何更新当前帧的位姿
-    EstimatePose(tracked_pts_ref, tracked_pts_cur, frame_scales[i], ref_frame,
+    EstimatePose(matched_pts_ref, matched_pts_cur, frame_scales[i], ref_frame,
                  cur_frame);
 
     // 将当前帧位姿存入, 更新显示
     if (viewer_) {
-      Eigen::Matrix3d R_cur = cur_frame->R_;
-      Eigen::Vector3d t_cur = cur_frame->t_;
-      Eigen::Isometry3d T(R_cur);
-      T.pretranslate(t_cur);
-      traj.push_back(T);
+      traj.push_back(cur_frame->Twc_);
       viewer_->Update(traj);
     }
 
@@ -92,27 +88,28 @@ void PoseCorrector::EstimatePose(const std::vector<cv::Point2f>& pts_ref,
                                  const double scale,
                                  const modules::Frame::Ptr ref_frame,
                                  modules::Frame::Ptr cur_frame) {
-  cv::Mat E, R, t, K;
+  cv::Mat E, R_rc, t_rc, K;
   cv::eigen2cv(camera_->K_, K);
 
-  E = cv::findEssentialMat(pts_ref, pts_cur, K, cv::RANSAC);
-  cv::recoverPose(E, pts_ref, pts_cur, K, R, t);
+  E = cv::findEssentialMat(pts_cur, pts_ref, K, cv::RANSAC);
+  cv::recoverPose(E, pts_cur, pts_ref, K, R_rc, t_rc);
 
-  Eigen::Matrix3d dR, R_ref = ref_frame->R_;
-  Eigen::Vector3d dt, t_ref = ref_frame->t_;
+  std::cout << "delta rotationMatrix: \n" << R_rc << std::endl;
+  std::cout << "delta translation: \n" << t_rc << std::endl;
 
-  cv::cv2eigen(R, dR);
-  cv::cv2eigen(t, dt);
+  Eigen::Matrix3d eigen_R_rc;
+  Eigen::Vector3d eigen_t_rc;
+  cv::cv2eigen(R_rc, eigen_R_rc);
+  cv::cv2eigen(t_rc, eigen_t_rc);
 
-  std::cout << "R: " << dR << std::endl;
-  std::cout << "t: " << dt << std::endl;
+  Sophus::SE3d Trc = Sophus::SE3d(eigen_R_rc, scale * eigen_t_rc);
 
-  // 将平移尺度归一化
-  dt.normalize();
+  cur_frame->Twc_ = ref_frame->Twc_ * Trc;
 
-  // 更新当前帧
-  cur_frame->R_ = dR * R_ref;
-  cur_frame->t_ = t_ref + scale * (R_ref * dt);
+  // std::cout << "translation: \n" << cur_frame->Twc_.translation() <<
+  // std::endl; std::cout << "rotationMatrix: \n" <<
+  // cur_frame->Twc_.rotationMatrix()
+  //           << std::endl;
 }
 
 }  // namespace app
