@@ -29,7 +29,7 @@ bool ReadTranslation(const std::string filename, const int index,
 
   std::string trans_tmp;
   std::vector<double> trans_elements;
-  FFDS::TOOLS::SeekToLine(fin, index + 1);
+  depth_filter::SeekToLine(fin, index + 1);
   // read each index, x, y, z, everytime
   for (int i = 0; i < 4; ++i) {
     if (!getline(fin, trans_tmp, ',')) {

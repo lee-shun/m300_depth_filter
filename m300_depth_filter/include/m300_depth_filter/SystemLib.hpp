@@ -32,8 +32,7 @@
 #include <iostream>
 #include <string>
 
-namespace FFDS {
-namespace TOOLS {
+namespace depth_filter {
 
 /* return as ms */
 inline int32_t getSysTime() {
@@ -132,7 +131,6 @@ inline std::ifstream& SeekToLine(std::ifstream& in, const uint16_t line_nbr) {
   return in;
 }
 
-}  // namespace TOOLS
-}  // namespace FFDS
+}  // namespace depth_filter
 
 #endif  // INCLUDE_TOOLS_SYSTEMLIB_HPP_

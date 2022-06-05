@@ -22,8 +22,7 @@
 #include <string>
 #include "./SystemLib.hpp"
 
-namespace FFDS {
-namespace TOOLS {
+namespace depth_filter {
 class FileWritter {
  public:
   FileWritter(const std::string file, const int number_precision)
@@ -65,7 +64,6 @@ class FileWritter {
 
   void write() { oufile << std::endl; }
 };
-}  // namespace TOOLS
-}  // namespace FFDS
+}  // namespace depth_filter
 
 #endif  // INCLUDE_TOOLS_PRINTCONTROL_FILEWRITTER_HPP_

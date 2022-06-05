@@ -18,7 +18,7 @@
 
 // TODO: 应该在当前点的邻域内进行深度估计. 一个小的窗口之中
 
-bool FFDS::MODULES::DepthFilter::UpdateDepth(
+bool depth_filter::DepthFilter::UpdateDepth(
     const cv::Mat &ref, const cv::Mat &curr, const Sophus::SE3d &T_C_R,
     const Eigen::Vector2d pt_ref, cv::Mat &depth, cv::Mat &depth_cov2) {
   // in the window
@@ -54,7 +54,7 @@ bool FFDS::MODULES::DepthFilter::UpdateDepth(
 }
 
 // TODO: draw the epipolar line and draw the box of matching point
-bool FFDS::MODULES::DepthFilter::EpipolarSearch(
+bool depth_filter::DepthFilter::EpipolarSearch(
     const cv::Mat &ref, const cv::Mat &curr, const Sophus::SE3d &T_C_R,
     const Eigen::Vector2d &pt_ref, const double &depth_mu,
     const double &depth_cov, Eigen::Vector2d &pt_curr,
@@ -104,9 +104,9 @@ bool FFDS::MODULES::DepthFilter::EpipolarSearch(
   return true;
 }
 
-double FFDS::MODULES::DepthFilter::NCC(const cv::Mat &ref, const cv::Mat &curr,
-                                       const Eigen::Vector2d &pt_ref,
-                                       const Eigen::Vector2d &pt_curr) {
+double depth_filter::DepthFilter::NCC(const cv::Mat &ref, const cv::Mat &curr,
+                                      const Eigen::Vector2d &pt_ref,
+                                      const Eigen::Vector2d &pt_curr) {
   double mean_ref = 0, mean_curr = 0;
   std::vector<double> values_ref, values_curr;
 
@@ -142,7 +142,7 @@ double FFDS::MODULES::DepthFilter::NCC(const cv::Mat &ref, const cv::Mat &curr,
   return numerator / sqrt(demoniator1 * demoniator2 + 1e-10);
 }
 
-bool FFDS::MODULES::DepthFilter::UpdateDepthFilter(
+bool depth_filter::DepthFilter::UpdateDepthFilter(
     const Eigen::Vector2d &pt_ref, const Eigen::Vector2d &pt_curr,
     const Sophus::SE3d &T_C_R, const Eigen::Vector2d &epipolar_direction,
     cv::Mat &depth, cv::Mat &depth_cov2) {
@@ -205,7 +205,7 @@ bool FFDS::MODULES::DepthFilter::UpdateDepthFilter(
   return true;
 }
 
-void FFDS::MODULES::DepthFilter::showEpipolarMatch(
+void depth_filter::DepthFilter::showEpipolarMatch(
     const cv::Mat &ref, const cv::Mat &curr, const Eigen::Vector2d &px_ref,
     const Eigen::Vector2d &px_curr) {
   cv::Mat ref_show, curr_show;
@@ -222,7 +222,7 @@ void FFDS::MODULES::DepthFilter::showEpipolarMatch(
   cv::waitKey(1);
 }
 
-void FFDS::MODULES::DepthFilter::showEpipolarLine(
+void depth_filter::DepthFilter::showEpipolarLine(
     const cv::Mat &ref, const cv::Mat &curr, const Eigen::Vector2d &px_ref,
     const Eigen::Vector2d &px_min_curr, const Eigen::Vector2d &px_max_curr) {
   cv::Mat ref_show, curr_show;

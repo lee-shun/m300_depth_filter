@@ -20,8 +20,7 @@
 #include <iostream>
 #include <vector>
 
-namespace FFDS {
-namespace MODULES {
+namespace depth_filter {
 
 class SegmentLocationFinder {
  public:
@@ -113,7 +112,6 @@ class SegmentLocationFinder {
     return center_of_contours;
   }
 };
-}  // namespace MODULES
-}  // namespace FFDS
+}  // namespace depth_filter
 
 #endif  // INCLUDE_MODULES_DEPTHESTIMATOR_SEGMENTLOCATIONFINDER_HPP_

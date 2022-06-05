@@ -21,8 +21,7 @@
 #include <opencv2/opencv.hpp>
 #include <sophus/se3.hpp>
 
-namespace FFDS {
-namespace MODULES {
+namespace depth_filter {
 class DepthFilter {
  public:
   struct Param {
@@ -135,7 +134,6 @@ class DepthFilter {
   Param param;
 };
 
-}  // namespace MODULES
-}  // namespace FFDS
+}  // namespace depth_filter
 
 #endif  // INCLUDE_MODULES_DEPTHESTIMATOR_DEPTHFILTER_HPP_
