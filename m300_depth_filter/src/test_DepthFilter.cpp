@@ -13,9 +13,9 @@
  *
  *******************************************************************************/
 
-#include "modules/DepthEstimator/DepthFilter.hpp"
-#include "tools/PrintControl/PrintCtrlMacro.h"
-#include "tools/SystemLib.hpp"
+#include "m300_depth_filter/DepthFilter.hpp"
+#include "m300_depth_filter/PrintCtrlMacro.h"
+#include "m300_depth_filter/SystemLib.hpp"
 
 bool ReadTranslation(const std::string filename, const int index,
                      Eigen::Vector3d* trans) {
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
         cv::imread(img_path + "/" + std::to_string(i) + ".png", 0);
     Eigen::Vector3d cur_trans;
     if (!ReadTranslation(translation_path, i, &cur_trans)) return 1;
-  Sophus::SE3d TWC(Eigen::Matrix3d::Identity(), cur_trans);
+    Sophus::SE3d TWC(Eigen::Matrix3d::Identity(), cur_trans);
 
     Sophus::SE3d TCR = TWC.inverse() * TWR;
 

@@ -13,8 +13,8 @@
  *
  *******************************************************************************/
 
-#include "modules/DepthEstimator/DepthFilter.hpp"
-#include "tools/PrintControl/PrintCtrlMacro.h"
+#include "m300_depth_filter/DepthFilter.hpp"
+#include "m300_depth_filter/PrintCtrlMacro.h"
 
 // TODO: 应该在当前点的邻域内进行深度估计. 一个小的窗口之中
 

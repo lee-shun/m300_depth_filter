@@ -13,7 +13,7 @@
  *
  *******************************************************************************/
 
-#include "modules/DepthEstimator/SegmentLocationFinder.hpp"
+#include "m300_depth_filter/SegmentLocationFinder.hpp"
 
 int main(int argc, char** argv) {
   cv::Mat srcImg = cv::imread("haha.jpg");
