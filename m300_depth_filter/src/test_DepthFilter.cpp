@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
   const std::string translation_path = dataset_path + "/local_pose.csv";
   const std::string img_path = dataset_path + "/rgb";
 
-  FFDS::MODULES::DepthFilter filter;
-  FFDS::MODULES::DepthFilter::Param param;
+  depth_filter::DepthFilter filter;
+  depth_filter::DepthFilter::Param param;
 
   // STEP: read the ref image
   cv::Mat ref_img = cv::imread(img_path + "/1.png", 0);

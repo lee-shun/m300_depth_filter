@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
   cv::namedWindow("【二值图】", cv::WINDOW_NORMAL);
   cv::imshow("【二值图】", midImg1);
 
-  FFDS::MODULES::SegmentLocationFinder finder;
+  depth_filter::SegmentLocationFinder finder;
 
   finder.FindLocation(midImg1, 20);
 
