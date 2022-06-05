@@ -53,4 +53,77 @@ bool AbsolutePoseRecover::Recover() {
   return true;
 }
 
+bool AbsolutePoseRecover::ReadPose(const std::string filename,
+                                   const int line_index, int* frame_index,
+                                   Sophus::SE3d* frame_pose) {
+  std::ifstream fin;
+  fin.open(filename);
+  if (!fin) {
+    PRINT_ERROR("can not open %s in given path, no such file or directory!",
+                filename.c_str());
+    return false;
+  }
+  std::string pose_tmp;
+  std::vector<double> pose_elements;
+  depth_filter::SeekToLine(fin, line_index);
+  // read each index, x, y, z, everytime
+  for (int i = 0; i < 13; ++i) {
+    if (!getline(fin, pose_tmp, ',')) {
+      PRINT_ERROR("pose reading error! at line_index %d", line_index);
+      return false;
+    }
+    // PRINT_DEBUG("read trans:index+xyz:%.8f", std::stod(trans_tmp));
+    pose_elements.push_back(std::stod(pose_tmp));
+  }
+
+  (*frame_index) = pose_elements[0];
+
+  Eigen::Vector3d t;
+  t << pose_elements[4], pose_elements[8], pose_elements[12];
+
+  Eigen::Matrix3d R;
+  R << pose_elements[1], pose_elements[2], pose_elements[3], pose_elements[5],
+      pose_elements[6], pose_elements[7], pose_elements[9], pose_elements[10],
+      pose_elements[11];
+
+  (*frame_pose) = Sophus::SE3d(R, t);
+
+  return true;
+}
+
+bool AbsolutePoseRecover::ReadTranslation(const std::string filename,
+                                          const int frame_index,
+                                          Eigen::Vector3d* trans) {
+  std::ifstream fin;
+  fin.open(filename);
+  if (!fin) {
+    PRINT_ERROR("can not open %s in given path, no such file or directory!",
+                filename.c_str());
+    return false;
+  }
+
+  std::string trans_tmp;
+  std::vector<double> trans_elements;
+  depth_filter::SeekToLine(fin, frame_index + 1);
+  // read each index, x, y, z, everytime
+  for (int i = 0; i < 4; ++i) {
+    if (!getline(fin, trans_tmp, ',')) {
+      PRINT_ERROR("pose reading error! at index %d", frame_index);
+      return false;
+    }
+    // PRINT_DEBUG("read trans:index+xyz:%.8f", std::stod(trans_tmp));
+    trans_elements.push_back(std::stod(trans_tmp));
+  }
+
+  if (trans_elements[0] != static_cast<double>(frame_index)) {
+    PRINT_INFO("mismach index of give and read! give: %d, read: %f",
+               frame_index, trans_elements[0]);
+    return false;
+  }
+
+  (*trans) << trans_elements[1], trans_elements[2], trans_elements[3];
+
+  return true;
+}
+
 }  // namespace depth_filter
