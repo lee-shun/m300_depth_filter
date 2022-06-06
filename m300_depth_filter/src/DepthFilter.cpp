@@ -41,7 +41,11 @@ bool depth_filter::DepthFilter::UpdateDepth(
       bool ret = EpipolarSearch(
           ref, curr, T_C_R, Eigen::Vector2d(x, y), depth.ptr<double>(y)[x],
           sqrt(depth_cov2.ptr<double>(y)[x]), pt_curr, epipolar_direction);
-      if (!ret) continue;
+
+      if (!ret) {
+        continue;
+        PRINT_WARN("point on ref has no match on cur image!")
+      }
 
       showEpipolarMatch(ref, curr, Eigen::Vector2d(x, y), pt_curr);
 
@@ -231,6 +235,7 @@ void depth_filter::DepthFilter::showEpipolarLine(
 
   cv::circle(ref_show, cv::Point2f(px_ref(0, 0), px_ref(1, 0)), 5,
              cv::Scalar(0, 255, 0), 2);
+
   cv::circle(curr_show, cv::Point2f(px_min_curr(0, 0), px_min_curr(1, 0)), 5,
              cv::Scalar(0, 255, 0), 2);
   cv::circle(curr_show, cv::Point2f(px_max_curr(0, 0), px_max_curr(1, 0)), 5,
