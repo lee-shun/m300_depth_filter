@@ -17,8 +17,8 @@
 #include "m300_depth_filter/PrintCtrlMacro.h"
 #include "m300_depth_filter/SystemLib.hpp"
 
-bool ReadTranslation(const std::string filename, const int index,
-                     Eigen::Vector3d* trans) {
+bool ReadPose(const std::string filename, const int line_index,
+              int* frame_index, Sophus::SE3d* Twc) {
   std::ifstream fin;
   fin.open(filename);
   if (!fin) {
@@ -26,27 +26,33 @@ bool ReadTranslation(const std::string filename, const int index,
                 filename.c_str());
     return false;
   }
-
-  std::string trans_tmp;
-  std::vector<double> trans_elements;
-  depth_filter::SeekToLine(fin, index + 1);
+  std::string pose_tmp;
+  std::vector<double> pose_elements;
+  depth_filter::SeekToLine(fin, line_index);
   // read each index, x, y, z, everytime
-  for (int i = 0; i < 4; ++i) {
-    if (!getline(fin, trans_tmp, ',')) {
-      PRINT_ERROR("pose reading error! at index %d", index);
+  for (int i = 0; i < 13; ++i) {
+    if (!getline(fin, pose_tmp, ',')) {
+      PRINT_ERROR("pose reading error! at line_index %d", line_index);
       return false;
     }
     // PRINT_DEBUG("read trans:index+xyz:%.8f", std::stod(trans_tmp));
-    trans_elements.push_back(std::stod(trans_tmp));
+    pose_elements.push_back(std::stod(pose_tmp));
   }
 
-  if (trans_elements[0] != static_cast<double>(index)) {
-    PRINT_INFO("mismach index of give and read! give: %d, read: %f", index,
-               trans_elements[0]);
-    return false;
-  }
+  (*frame_index) = pose_elements[0];
 
-  (*trans) << trans_elements[1], trans_elements[2], trans_elements[3];
+  Eigen::Vector3d t;
+  t << pose_elements[4], pose_elements[8], pose_elements[12];
+
+  Eigen::Matrix3d R;
+  R << pose_elements[1], pose_elements[2], pose_elements[3], pose_elements[5],
+      pose_elements[6], pose_elements[7], pose_elements[9], pose_elements[10],
+      pose_elements[11];
+  // normalize it
+  Eigen::Quaterniond q(R);
+  q.normalize();
+
+  (*Twc) = Sophus::SE3d(q, t);
 
   return true;
 }
@@ -73,16 +79,13 @@ int main(int argc, char** argv) {
   Eigen::Vector2d ref_point(707, 386);
 
   // STEP: read the ref translation
-  Eigen::Vector3d ref_trans;
-  if (!ReadTranslation(translation_path, 1, &ref_trans)) return 1;
-  Sophus::SE3d TWR(Eigen::Matrix3d::Identity(), ref_trans);
+  Sophus::SE3d TWR;
 
   // read updates from index(image name: 1)
   for (int i = 2; i < 10; ++i) {
     cv::Mat cur_img =
         cv::imread(img_path + "/" + std::to_string(i) + ".png", 0);
     Eigen::Vector3d cur_trans;
-    if (!ReadTranslation(translation_path, i, &cur_trans)) return 1;
     Sophus::SE3d TWC(Eigen::Matrix3d::Identity(), cur_trans);
 
     Sophus::SE3d TCR = TWC.inverse() * TWR;

@@ -58,6 +58,7 @@ bool AbsolutePoseRecover::Recover() {
     if (!ReadTranslation(abs_trans_filename_, frame_index, &abs_trans))
       return false;
 
+    // NOTE: ref = world
     // recover realtive Trc
     double scale = (abs_trans - abs_trans_ref).norm();
     Sophus::SE3d Trc = Trw * Tcw.inverse();
@@ -66,8 +67,8 @@ bool AbsolutePoseRecover::Recover() {
     // wirte
     Eigen::Vector3d t = Trc.translation();
     Eigen::Matrix3d R = Trc.rotationMatrix();
-    pose_writer.write(frame_index, R(0, 0), R(0, 1), R(0, 2), R(1, 0), R(1, 1),
-                      R(1, 2), R(2, 0), R(2, 1), R(2, 2), t(0), t(1), t(2));
+    pose_writer.write(frame_index, R(0, 0), R(0, 1), R(0, 2), t(0), R(1, 0),
+                      R(1, 1), R(1, 2), t(1), R(2, 0), R(2, 1), R(2, 2), t(2));
   }
   return true;
 }
