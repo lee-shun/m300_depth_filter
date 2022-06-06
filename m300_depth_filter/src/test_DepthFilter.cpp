@@ -60,15 +60,26 @@ bool ReadPose(const std::string filename, const int line_index,
 int main(int argc, char** argv) {
   const std::string home = std::getenv("HOME");
   const std::string dataset_path =
-      home + "/m300_depth/m300_grabbed_data_1_17.1";
-  const std::string translation_path = dataset_path + "/local_pose.csv";
+      home + "/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1";
+  const std::string pose_path = dataset_path + "/abs_rel_pose.csv";
   const std::string img_path = dataset_path + "/rgb";
 
   depth_filter::DepthFilter filter;
   depth_filter::DepthFilter::Param param;
 
-  // STEP: read the ref image
-  cv::Mat ref_img = cv::imread(img_path + "/1.png", 0);
+  // STEP: read the ref image and pose
+  Sophus::SE3d TWR;
+  int ref_frame_id = 0;
+  ReadPose(pose_path, 0, &ref_frame_id, &TWR);
+  std::string ref_frame_name =
+      img_path + "/" + std::to_string(ref_frame_id) + ".png";
+
+  cv::Mat ref_img = cv::imread(ref_frame_name, 0);
+  if (ref_img.empty()) {
+    PRINT_ERROR("image index: ref is Empty!");
+    PRINT_ERROR("ref name  %s!", ref_frame_name.c_str());
+    return 1;
+  }
   double init_depth = 10.0;  // 深度初始值
   double init_cov2 = 10.0;   // 方差初始值
   cv::Mat depth(param.height, param.width, CV_64F, init_depth);  // 深度图
@@ -78,23 +89,24 @@ int main(int argc, char** argv) {
   // TODO: 指定ref_point
   Eigen::Vector2d ref_point(707, 386);
 
-  // STEP: read the ref translation
-  Sophus::SE3d TWR;
-
   // read updates from index(image name: 1)
-  for (int i = 2; i < 10; ++i) {
-    cv::Mat cur_img =
-        cv::imread(img_path + "/" + std::to_string(i) + ".png", 0);
-    Eigen::Vector3d cur_trans;
-    Sophus::SE3d TWC(Eigen::Matrix3d::Identity(), cur_trans);
+  for (int i = 1; i < 10; ++i) {
+    int cur_frame_id = 0;
+    Sophus::SE3d TWC;
+    ReadPose(pose_path, i, &cur_frame_id, &TWC);
+    std::string cur_frame_name =
+        img_path + "/" + std::to_string(cur_frame_id) + ".png";
+    cv::Mat cur_img = cv::imread(cur_frame_name, 0);
 
     Sophus::SE3d TCR = TWC.inverse() * TWR;
 
-    std::cout << "TCR.rotation" << TCR.rotationMatrix() << std::endl;
-    std::cout << "TCR.translation" << TCR.translation() << std::endl;
+    PRINT_INFO("processing frame id: %d", cur_frame_id);
+    std::cout << "TCR.rotation \n" << TCR.rotationMatrix() << std::endl;
+    std::cout << "TCR.translation \n" << TCR.translation() << std::endl;
 
-    if (ref_img.empty() || cur_img.empty()) {
+    if (cur_img.empty()) {
       PRINT_ERROR("image index: %d is Empty!", i);
+      PRINT_ERROR("path: %s", cur_frame_name.c_str());
       return 1;
     }
 
