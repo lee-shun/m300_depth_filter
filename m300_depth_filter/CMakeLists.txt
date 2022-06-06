@@ -14,7 +14,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories("/usr/include/eigen3")
 
 # OpenCV
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 # pangolin

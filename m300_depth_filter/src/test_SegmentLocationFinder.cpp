@@ -16,7 +16,7 @@
 #include "m300_depth_filter/SegmentLocationFinder.hpp"
 
 int main(int argc, char** argv) {
-  cv::Mat srcImg = cv::imread("haha.jpg");
+  cv::Mat srcImg = cv::imread("/home/ls/haha.jpg");
   cv::Mat redChannel;
   cv::namedWindow("【原图】", cv::WINDOW_NORMAL);
   cv::imshow("【原图】", srcImg);

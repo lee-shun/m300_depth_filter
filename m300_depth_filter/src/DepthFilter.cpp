@@ -43,8 +43,8 @@ bool depth_filter::DepthFilter::UpdateDepth(
           sqrt(depth_cov2.ptr<double>(y)[x]), pt_curr, epipolar_direction);
 
       if (!ret) {
-        continue;
         PRINT_WARN("point on ref has no match on cur image!")
+        continue;
       }
 
       showEpipolarMatch(ref, curr, Eigen::Vector2d(x, y), pt_curr);
@@ -101,7 +101,10 @@ bool depth_filter::DepthFilter::EpipolarSearch(
     }
   }
 
-  if (best_ncc < 0.85f) return false;
+  if (best_ncc < 0.35f) {
+    PRINT_INFO("best ncc is %lf", best_ncc);
+    return false;
+  }
 
   pt_curr = best_px_curr;
 
