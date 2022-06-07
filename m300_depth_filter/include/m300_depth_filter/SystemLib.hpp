@@ -131,6 +131,22 @@ inline std::ifstream& SeekToLine(std::ifstream& in, const uint16_t line_nbr) {
   return in;
 }
 
+inline size_t GetFileNum(const std::string& path) {
+  size_t fileNum = 0;
+  DIR* pDir;
+  struct dirent* ptr;
+
+  if (!(pDir = opendir(path.c_str()))) return fileNum;
+
+  while ((ptr = readdir(pDir)) != 0) {
+    if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0)
+      fileNum++;
+  }
+
+  closedir(pDir);
+  return fileNum;
+}
+
 }  // namespace depth_filter
 
 #endif  // INCLUDE_TOOLS_SYSTEMLIB_HPP_
