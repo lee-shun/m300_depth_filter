@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 
       // distance
       for (cv::DMatch& match : matches) {
-        if (match.distance <= 20) good_matches.push_back(match);
+        if (match.distance <= 30) good_matches.push_back(match);
       }
 
       cv::Mat img_good_match;
