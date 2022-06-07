@@ -65,20 +65,20 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
   }
 
   // STEP: 3 find rectangles
-  for (int i = 0; i < contours.size(); i++) {
+  for (size_t i = 0; i < contours.size(); i++) {
     std::vector<cv::Point> points = contours[i];
     cv::Rect box = cv::boundingRect(cv::Mat(points));
     boundary_box->push_back(box);
 
     if (imshow_final_rect) {
-      cv::Point center;
+      cv::Point2f center;
       center.x = box.x + box.width / 2.0f;
       center.y = box.y + box.height / 2.0f;
       // draw rects
       cv::rectangle(show_img, box, cv::Scalar(0, 255, 0), 2);
 
       // center
-      cv::Point l, r, u, d;
+      cv::Point2f l, r, u, d;
       l.x = center.x - 10;
       l.y = center.y;
 
