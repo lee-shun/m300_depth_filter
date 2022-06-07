@@ -14,33 +14,44 @@
  *******************************************************************************/
 
 #include "m300_depth_filter/SegmentLocationFinder.hpp"
+#include "m300_depth_filter/PrintCtrlMacro.h"
 #include <opencv2/imgproc.hpp>
 
-std::vector<cv::Point> depth_filter::SegmentLocationFinder::FindLocation(
-    const cv::Mat binary_input, const int morph_size,
-    const bool imshow_contours, const bool imshow_final_rect) {
+bool depth_filter::SegmentLocationFinder::FindLocation(
+    const cv::Mat binary_input, std::vector<cv::Rect>* boundary_box,
+    const int morph_size, const bool imshow_contours,
+    const bool imshow_final_rect) {
   cv::Mat binary = binary_input.clone();
+
   cv::Mat show_img;
   cv::cvtColor(binary, show_img, cv::COLOR_GRAY2BGR);
 
   // STEP: 1 morphology
-  cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
-                                              cv::Size(morph_size, morph_size));
+  if (morph_size != 0) {
+    cv::Mat after_open_binary;
+    cv::Mat after_close_binary;
 
-  cv::Mat after_open_binary;
-  cv::morphologyEx(binary, after_open_binary, cv::MORPH_OPEN, element);
+    cv::Mat element = cv::getStructuringElement(
+        cv::MORPH_RECT, cv::Size(morph_size, morph_size));
 
-  cv::Mat after_close_binary;
-  cv::morphologyEx(after_open_binary, after_close_binary, cv::MORPH_CLOSE,
-                   element);
+    cv::morphologyEx(binary, after_open_binary, cv::MORPH_OPEN, element);
+    cv::morphologyEx(after_open_binary, after_close_binary, cv::MORPH_CLOSE,
+                     element);
+
+    binary = after_close_binary;
+  }
 
   // STEP: 2 find contours
-  cv::Mat contours_img =
-      cv::Mat::zeros(after_close_binary.rows, after_close_binary.cols, CV_8UC3);
+  cv::Mat contours_img = cv::Mat::zeros(binary.rows, binary.cols, CV_8UC3);
   std::vector<std::vector<cv::Point>> contours;
   std::vector<cv::Vec4i> hierarchy;
-  cv::findContours(after_close_binary, contours, hierarchy, cv::RETR_EXTERNAL,
+  cv::findContours(binary, contours, hierarchy, cv::RETR_EXTERNAL,
                    cv::CHAIN_APPROX_SIMPLE);
+  if (contours.empty()) {
+    PRINT_WARN("no contours found!");
+    return false;
+  }
+
   if (imshow_contours) {
     int index = 0;
     for (; index >= 0; index = hierarchy[index][0]) {
@@ -53,21 +64,18 @@ std::vector<cv::Point> depth_filter::SegmentLocationFinder::FindLocation(
     cv::waitKey(0);
   }
 
-  // STEP: 3 calculate rectangular center
-  std::vector<cv::Point> center_of_contours;
+  // STEP: 3 find rectangles
   for (int i = 0; i < contours.size(); i++) {
     std::vector<cv::Point> points = contours[i];
     cv::Rect box = cv::boundingRect(cv::Mat(points));
-
-    cv::Point center;
-    center.x = box.x + box.width / 2.0f;
-    center.y = box.y + box.height / 2.0f;
-
-    center_of_contours.push_back(center);
+    boundary_box->push_back(box);
 
     if (imshow_final_rect) {
+      cv::Point center;
+      center.x = box.x + box.width / 2.0f;
+      center.y = box.y + box.height / 2.0f;
       // draw rects
-      cv::rectangle(show_img, box, cv::Scalar(0, 255, 0));
+      cv::rectangle(show_img, box, cv::Scalar(0, 255, 0), 2);
 
       // center
       cv::Point l, r, u, d;
@@ -93,5 +101,5 @@ std::vector<cv::Point> depth_filter::SegmentLocationFinder::FindLocation(
     cv::waitKey(0);
   }
 
-  return center_of_contours;
+  return true;
 }

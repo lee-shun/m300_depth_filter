@@ -16,7 +16,7 @@
 #include "m300_depth_filter/SegmentLocationFinder.hpp"
 
 int main(int argc, char** argv) {
-  cv::Mat srcImg = cv::imread("/home/ls/haha.jpg");
+  cv::Mat srcImg = cv::imread(argv[1]);
   cv::Mat redChannel;
   cv::namedWindow("【原图】", cv::WINDOW_NORMAL);
   cv::imshow("【原图】", srcImg);
@@ -38,9 +38,8 @@ int main(int argc, char** argv) {
 
   for (int i = 0; i < rowNumber; i++) {
     uchar* data = midImg1.ptr<uchar>(i);  // 取第i行的首地址
-    uchar* redData = redChannel.ptr<uchar>(i);
     for (int j = 0; j < colNumber; j++) {
-      if (data[j] > 120 && redData[j] < 120 / 2)
+      if (data[j] > 150)
         data[j] = 255;
       else
         data[j] = 0;
@@ -48,10 +47,12 @@ int main(int argc, char** argv) {
   }
   cv::namedWindow("【二值图】", cv::WINDOW_NORMAL);
   cv::imshow("【二值图】", midImg1);
+  cv::waitKey(0);
 
   depth_filter::SegmentLocationFinder finder;
 
-  finder.FindLocation(midImg1, 20);
+  std::vector<cv::Rect> boundary_boxes;
+  finder.FindLocation(midImg1, &boundary_boxes);
 
   return 0;
 }

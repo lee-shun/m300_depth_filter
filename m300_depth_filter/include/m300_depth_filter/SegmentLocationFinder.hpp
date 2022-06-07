@@ -24,10 +24,10 @@ namespace depth_filter {
 
 class SegmentLocationFinder {
  public:
-  std::vector<cv::Point> FindLocation(const cv::Mat binary_input,
-                                      const int morph_size,
-                                      const bool imshow_contours = true,
-                                      const bool imshow_final_rect = true);
+  bool FindLocation(const cv::Mat binary_input,
+                    std::vector<cv::Rect>* boundary_box,
+                    const int morph_size = 0, const bool imshow_contours = true,
+                    const bool imshow_final_rect = true);
 };
 }  // namespace depth_filter
 
