@@ -19,16 +19,18 @@
 #include "m300_depth_filter/Dataset.hpp"
 
 namespace depth_filter {
-bool Dataset::GetAllRGBImageNames(std::vector<std::string>* all_image_names,
-                               bool use_cv_global) {
+
+bool Dataset::GetAllImageNames(const std::string img_path,
+                        std::vector<std::string>* all_image_names,
+                        const bool use_cv_global) {
   if (use_cv_global) {
-    cv::glob(rgb_img_path_, *all_image_names);
+    cv::glob(img_path, *all_image_names);
   } else {
-    size_t image_num = GetFileNum(rgb_img_path_);
+    size_t image_num = GetFileNum(img_path);
     all_image_names->clear();
     all_image_names->reserve(image_num);
     for (size_t i = 0; i < image_num; ++i) {
-      std::string img_name = rgb_img_path_ + "/" + std::to_string(i) + ".png";
+      std::string img_name = img_path + "/" + std::to_string(i) + ".png";
       all_image_names->push_back(img_name);
     }
   }

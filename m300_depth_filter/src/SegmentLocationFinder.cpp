@@ -59,7 +59,6 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
       drawContours(contours_img, contours, index, color, 0, 8, hierarchy);
     }
 
-    cv::namedWindow("contours image:", cv::WINDOW_NORMAL);
     cv::imshow("contours image:", contours_img);
     cv::waitKey(0);
   }
@@ -71,6 +70,7 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
     boundary_box->push_back(box);
 
     if (imshow_final_rect) {
+      PRINT_INFO("contour size: %zu", contours.size());
       cv::Point2f center;
       center.x = box.x + box.width / 2.0f;
       center.y = box.y + box.height / 2.0f;
@@ -96,7 +96,6 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
   }
 
   if (imshow_final_rect) {
-    cv::namedWindow("final rect", cv::WINDOW_NORMAL);
     cv::imshow("final rect", show_img);
     cv::waitKey(0);
   }
