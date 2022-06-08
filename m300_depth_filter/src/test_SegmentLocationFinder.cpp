@@ -18,8 +18,10 @@
 #include "m300_depth_filter/Dataset.hpp"
 
 #include <opencv2/features2d.hpp>
+#include <opencv2/core/eigen.hpp>
 
 #include <cmath>
+#include <sophus/se3.hpp>
 
 const float patch_width = 90.0f;
 const float patch_height = 90.0f;
@@ -29,7 +31,7 @@ int main(int argc, char** argv) {
   depth_filter::Dataset dataset(
       "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1");
   dataset.GetAllRGBImageNames(&rgb_img_names);
-  dataset.GetAllMaskImageNames(&mask_img_names);
+  dataset.GetAllRGBSegImageNames(&mask_img_names);
   depth_filter::SegmentLocationFinder finder;
 
   // for each of the images
@@ -104,7 +106,6 @@ int main(int argc, char** argv) {
       }
 
       cv::Mat img_good_match;
-
       cv::drawMatches(ref_img, ref_kps, rgb_img, kps, good_matches,
                       img_good_match);
 
@@ -116,3 +117,4 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+

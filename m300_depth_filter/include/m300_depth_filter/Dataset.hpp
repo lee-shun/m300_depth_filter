@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <opencv2/opencv.hpp>
+#include <sophus/se3.hpp>
 
 namespace depth_filter {
 class Dataset {
@@ -32,8 +33,9 @@ class Dataset {
       : dataset_path_(dataset_path) {
     local_pose_path_ = dataset_path_ + "/local_pose.csv";
     rgb_img_path_ = dataset_path_ + "/rgb";
-    mask_img_path_ = dataset_path_ + "/mask";
+    rgb_seg_img_path_ = dataset_path_ + "/mask";
     ir_img_path_ = dataset_path_ + "/ir";
+    abs_rel_pose_path_ = dataset_path_ + "/abs_rel_pose.csv";
   }
 
   bool GetAllRGBImageNames(std::vector<std::string>* all_image_names,
@@ -41,15 +43,38 @@ class Dataset {
     return GetAllImageNames(rgb_img_path_, all_image_names, use_cv_global);
   }
 
+  cv::Mat GetRGBImageByIndex(const int frame_index, const int type) {
+    return cv::imread(
+        rgb_img_path_ + "/" + std::to_string(frame_index) + ".png", type);
+  }
+
   bool GetAllIRImageNames(std::vector<std::string>* all_image_names,
                           const bool use_cv_global = false) {
     return GetAllImageNames(ir_img_path_, all_image_names, use_cv_global);
   }
 
-  bool GetAllMaskImageNames(std::vector<std::string>* all_image_names,
-                            const bool use_cv_global = false) {
-    return GetAllImageNames(mask_img_path_, all_image_names, use_cv_global);
+  cv::Mat GetIrImageByIndex(const int frame_index, const int type) {
+    return cv::imread(ir_img_path_ + "/" + std::to_string(frame_index) + ".png",
+                      type);
   }
+
+  bool GetAllRGBSegImageNames(std::vector<std::string>* all_image_names,
+                              const bool use_cv_global = false) {
+    return GetAllImageNames(rgb_seg_img_path_, all_image_names, use_cv_global);
+  }
+
+  cv::Mat GetRGBSegImageByIndex(const int frame_index, const int type) {
+    return cv::imread(
+        rgb_seg_img_path_ + "/" + std::to_string(frame_index) + ".png", type);
+  }
+
+  bool ReadAbsRelPose(const int line_index, int* frame_index,
+                      Sophus::SE3d* Twc);
+
+ private:
+  bool GetAllImageNames(const std::string img_folder,
+                        std::vector<std::string>* all_image_names,
+                        const bool use_cv_global = false);
 
   /**
    * NOTE: the index is same as the images' index
@@ -57,16 +82,15 @@ class Dataset {
   bool ReadLocalPose(const std::string filename, const int frame_index,
                      Eigen::Vector3d* trans);
 
- private:
-  bool GetAllImageNames(const std::string img_folder,
-                        std::vector<std::string>* all_image_names,
-                        const bool use_cv_global = false);
-
   std::string dataset_path_;
   std::string local_pose_path_;
   std::string rgb_img_path_;
-  std::string mask_img_path_;
+  std::string rgb_seg_img_path_;
   std::string ir_img_path_;
+
+  // 1. true scale
+  // 2. the first frame is the ref frame
+  std::string abs_rel_pose_path_;
 };
 }  // namespace depth_filter
 
