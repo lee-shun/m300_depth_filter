@@ -1,4 +1,4 @@
-add_library(${PROJECT_NAME} Dataset.cpp SegmentLocationFinder.cpp
+add_library(${PROJECT_NAME} Dataset.cpp Frame.cpp SegmentLocationFinder.cpp
                             DepthFilter.cpp AbsolutePoseRecover.cpp)
 target_link_libraries(${PROJECT_NAME} ${THIRD_PARTY_LIBS})
 
@@ -10,3 +10,6 @@ target_link_libraries(test_DepthFilter ${PROJECT_NAME})
 
 add_executable(test_AbsolutePoseRecover test_AbsolutePoseRecover.cpp)
 target_link_libraries(test_AbsolutePoseRecover ${PROJECT_NAME})
+
+add_executable(Triangulator Triangulator.cpp)
+target_link_libraries(Triangulator PROJECT_NAME)

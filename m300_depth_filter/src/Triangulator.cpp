@@ -42,6 +42,7 @@ void Triangulator::Run() {
   for (int line_index = 1; line_index < 100; ++line_index) {
     if (!dataset.ReadAbsRelPose(line_index, &cur_frame.id_, &cur_frame.Twc_))
       return;
+    PRINT_INFO("current frame id: %d", cur_frame.id_);
 
     cur_frame.rgb_img_ =
         dataset.GetRGBImageByIndex(cur_frame.id_, cv::IMREAD_GRAYSCALE);
@@ -56,7 +57,31 @@ void Triangulator::Run() {
     std::vector<cv::DMatch> matches;
     MacthFeaturesBF(ref_frame, cur_frame, &matches);
 
+    // draw and show matches
+    cv::Mat img_show;
+    cv::drawMatches(ref_frame.rgb_img_, ref_frame.kps_, cur_frame.rgb_img_,
+                    cur_frame.kps_, matches, img_show);
+    cv::imshow("matched", img_show);
+    cv::waitKey(0);
+
     // triangulation
+    std::vector<cv::Point2f> matched_ref_pts, matched_cur_pts;
+    for (auto m : matches) {
+      matched_ref_pts.push_back(ref_frame.kps_[m.queryIdx].pt);
+      matched_cur_pts.push_back(cur_frame.kps_[m.trainIdx].pt);
+    }
+
+    std::vector<Eigen::Vector3d> fire_points;
+
+    Triangulation(ref_frame.Twc_, cur_frame.Twc_, matched_ref_pts,
+                  matched_cur_pts, &fire_points);
+
+    PRINT_INFO("the 3d points in ref coordinates total: %zu",
+               fire_points.size());
+    for (size_t no = 0; no < fire_points.size(); ++no) {
+      std::cout << "fire point: " << no << ": " << fire_points[no].transpose()
+                << std::endl;
+    }
   }
 }
 
@@ -136,9 +161,6 @@ void Triangulator::Triangulation(const Sophus::SE3d T_ref,
   cv::Mat final_points;
   cv::triangulatePoints(P1, P2, pts_ref, pts_cur, final_points);
 
-  std::cout << final_points.cols << std::endl;
-  std::cout << final_points.rows << std::endl;
-
   for (int i = 0; i < final_points.cols; i++) {
     cv::Mat x = final_points.col(i);
     x /= x.at<float>(3, 0);
@@ -151,3 +173,10 @@ void Triangulator::Triangulation(const Sophus::SE3d T_ref,
 }
 
 }  // namespace depth_filter
+
+int main(int argc, char** argv) {
+  depth_filter::Triangulator tri;
+  tri.Run();
+
+  return 0;
+}
