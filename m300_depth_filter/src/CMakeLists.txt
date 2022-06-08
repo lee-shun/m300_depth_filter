@@ -12,4 +12,4 @@ add_executable(test_AbsolutePoseRecover test_AbsolutePoseRecover.cpp)
 target_link_libraries(test_AbsolutePoseRecover ${PROJECT_NAME})
 
 add_executable(Triangulator Triangulator.cpp)
-target_link_libraries(Triangulator PROJECT_NAME)
+target_link_libraries(Triangulator ${PROJECT_NAME})

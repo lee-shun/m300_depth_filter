@@ -39,7 +39,7 @@ void Triangulator::Run() {
   }
 
   // other frames
-  for (int line_index = 1; line_index < 100; ++line_index) {
+  for (int line_index = 2; line_index < 300; ++line_index) {
     if (!dataset.ReadAbsRelPose(line_index, &cur_frame.id_, &cur_frame.Twc_))
       return;
     PRINT_INFO("current frame id: %d", cur_frame.id_);
@@ -55,7 +55,7 @@ void Triangulator::Run() {
     }
     // match
     std::vector<cv::DMatch> matches;
-    MacthFeaturesBF(ref_frame, cur_frame, &matches);
+    MacthFeaturesBF(ref_frame, cur_frame, &matches, false);
 
     // draw and show matches
     cv::Mat img_show;
@@ -63,6 +63,11 @@ void Triangulator::Run() {
                     cur_frame.kps_, matches, img_show);
     cv::imshow("matched", img_show);
     cv::waitKey(0);
+
+    if (matches.empty()) {
+      PRINT_WARN("NO matches in cur frame!");
+      continue;
+    }
 
     // triangulation
     std::vector<cv::Point2f> matched_ref_pts, matched_cur_pts;
@@ -112,7 +117,7 @@ void Triangulator::CullWithHistConsistency(
     const std::vector<cv::KeyPoint>& keypoints_cur,
     const std::vector<cv::DMatch>& raw_matches,
     std::vector<cv::DMatch>& good_matches) {
-  const int HISTO_LENGTH = 60;
+  const int HISTO_LENGTH = 30;
   std::vector<cv::DMatch> rot_hist[HISTO_LENGTH];
   for (int i = 0; i < HISTO_LENGTH; ++i) {
     rot_hist[i].reserve(500);
@@ -155,8 +160,10 @@ void Triangulator::Triangulation(const Sophus::SE3d T_ref,
   cv::eigen2cv(T_ref.matrix3x4(), T1);
   cv::eigen2cv(T_cur.matrix3x4(), T2);
 
-  cv::Mat K = (cv::Mat_<float>(3, 3) << 2075.220169334596, 0, 456.1915029618301,
-               0, 2074.731865204465, 402.94925809268, 0, 0, 1);
+  cv::Mat K =
+      (cv::Mat_<double>(3, 3) << 2075.220169334596, 0, 456.1915029618301, 0,
+       2074.731865204465, 402.94925809268, 0, 0, 1);
+
   cv::Mat P1 = K * T1, P2 = K * T2;
   cv::Mat final_points;
   cv::triangulatePoints(P1, P2, pts_ref, pts_cur, final_points);

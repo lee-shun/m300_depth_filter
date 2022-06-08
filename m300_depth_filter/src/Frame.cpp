@@ -18,14 +18,13 @@
 
 namespace depth_filter {
 bool Frame::DetectFeatures() {
-  cv::Mat gray_seg, binary_seg;
-  cv::cvtColor(rgb_seg_, gray_seg, cv::COLOR_BGR2GRAY);
-  cv::threshold(gray_seg, binary_seg, 250, 255, cv::THRESH_BINARY);
+  cv::Mat binary_seg;
+  cv::threshold(rgb_seg_, binary_seg, 250, 255, cv::THRESH_BINARY);
 
   std::vector<cv::Rect> boundary_boxes, patch_boxes;
   std::vector<cv::Point2f> boundary_centers;
   depth_filter::SegmentLocationFinder finder;
-  if (!finder.FindLocation(binary_seg, &boundary_boxes, 5, false, true)) {
+  if (!finder.FindLocation(binary_seg, &boundary_boxes, 5, false, false)) {
     return false;
   }
 
