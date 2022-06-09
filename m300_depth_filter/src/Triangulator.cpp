@@ -41,6 +41,8 @@ void Triangulator::Run() {
 
   // other frames
   FileWritter depth_writter("depth_estimation.csv", 9);
+  depth_writter.new_open();
+  depth_writter.write("index", "x", "y", "z");
   for (int line_index = 2; line_index < 300; ++line_index) {
     if (!dataset.ReadAbsRelPose(line_index, &cur_frame.id_, &cur_frame.Twc_))
       return;
@@ -64,7 +66,7 @@ void Triangulator::Run() {
     cv::drawMatches(ref_frame.rgb_img_, ref_frame.kps_, cur_frame.rgb_img_,
                     cur_frame.kps_, matches, img_show);
     cv::imshow("matched", img_show);
-    cv::waitKey(0);
+    cv::waitKey(1);
 
     if (matches.empty()) {
       PRINT_WARN("No matches in cur frame!");
@@ -104,7 +106,7 @@ void Triangulator::MacthFeaturesBF(const Frame& ref, const Frame& cur,
 
   // distance
   for (cv::DMatch& match : raw_matches) {
-    if (match.distance <= 40) good_matches.push_back(match);
+    if (match.distance <= 30) good_matches.push_back(match);
   }
 
   if (use_hist) {
