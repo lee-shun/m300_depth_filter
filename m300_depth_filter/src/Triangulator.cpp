@@ -16,6 +16,7 @@
 #include "m300_depth_filter/Triangulator.hpp"
 #include "m300_depth_filter/Dataset.hpp"
 #include "m300_depth_filter/PrintCtrlMacro.h"
+#include "m300_depth_filter/FileWritter.hpp"
 #include <opencv2/core/eigen.hpp>
 
 namespace depth_filter {
@@ -39,6 +40,7 @@ void Triangulator::Run() {
   }
 
   // other frames
+  FileWritter depth_writter("depth_estimation.csv", 9);
   for (int line_index = 2; line_index < 300; ++line_index) {
     if (!dataset.ReadAbsRelPose(line_index, &cur_frame.id_, &cur_frame.Twc_))
       return;
@@ -65,7 +67,7 @@ void Triangulator::Run() {
     cv::waitKey(0);
 
     if (matches.empty()) {
-      PRINT_WARN("NO matches in cur frame!");
+      PRINT_WARN("No matches in cur frame!");
       continue;
     }
 
@@ -78,14 +80,16 @@ void Triangulator::Run() {
 
     std::vector<Eigen::Vector3d> fire_points;
 
-    Triangulation(ref_frame.Twc_, cur_frame.Twc_, matched_ref_pts,
-                  matched_cur_pts, &fire_points);
+    Triangulation(ref_frame.Twc_.inverse(), cur_frame.Twc_.inverse(),
+                  matched_ref_pts, matched_cur_pts, &fire_points);
 
     PRINT_INFO("the 3d points in ref coordinates total: %zu",
                fire_points.size());
     for (size_t no = 0; no < fire_points.size(); ++no) {
       std::cout << "fire point: " << no << ": " << fire_points[no].transpose()
                 << std::endl;
+      depth_writter.write(cur_frame.id_, fire_points[no](0), fire_points[no](1),
+                          fire_points[no](2));
     }
   }
 }
@@ -100,7 +104,7 @@ void Triangulator::MacthFeaturesBF(const Frame& ref, const Frame& cur,
 
   // distance
   for (cv::DMatch& match : raw_matches) {
-    if (match.distance <= 20) good_matches.push_back(match);
+    if (match.distance <= 40) good_matches.push_back(match);
   }
 
   if (use_hist) {
