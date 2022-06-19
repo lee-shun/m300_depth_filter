@@ -179,17 +179,17 @@ void Meter2LatLongAlt(const T ref[3], const COMMON::LocalPosition<T>& local_pos,
 }
 
 /**
- * a: reference point in deg: lat, lon, alt
+ * a: reference point in deg: lon, lat, alt
  * m: NED
  * FIXME: need to change the order...
  * */
 template <typename T>
 void LatLong2Meter(const T a_pos[2], const T b_pos[2], T m[2]) {
-  T lat1 = a_pos[0];
-  T lon1 = a_pos[1];
+  T lon1 = a_pos[0];
+  T lat1 = a_pos[1];
 
-  T lat2 = b_pos[0];
-  T lon2 = b_pos[1];
+  T lon2 = b_pos[0];
+  T lat2 = b_pos[1];
 
   /* 涉及到ned是向北增加，且纬度向北也增加 */
   T n_distance = Deg2Rad(lat2 - lat1) * EARTH_R;
