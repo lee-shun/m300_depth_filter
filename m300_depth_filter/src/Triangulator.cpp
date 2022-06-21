@@ -22,7 +22,7 @@
 namespace depth_filter {
 void Triangulator::Run() {
   Dataset dataset(
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1");
+      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2");
 
   // STEP: 1 find ref frame
   Frame ref_frame, cur_frame;
@@ -106,7 +106,7 @@ void Triangulator::MacthFeaturesBF(const Frame& ref, const Frame& cur,
 
   // distance
   for (cv::DMatch& match : raw_matches) {
-    if (match.distance <= 30) good_matches.push_back(match);
+    if (match.distance <= 40) good_matches.push_back(match);
   }
 
   if (use_hist) {

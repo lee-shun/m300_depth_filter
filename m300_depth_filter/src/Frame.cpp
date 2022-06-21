@@ -32,7 +32,7 @@ bool Frame::DetectFeatures() {
   // detect in patch boxes
   cv::Mat patch_mask = cv::Mat::zeros(rgb_img_.size(), CV_8UC1);
   for (size_t i = 0; i < boundary_centers.size(); ++i) {
-    cv::circle(patch_mask, boundary_centers[i], radiuses[i] * 1.5,
+    cv::circle(patch_mask, boundary_centers[i], 10,
                cv::Scalar(255, 255, 255), -1);
   }
 
