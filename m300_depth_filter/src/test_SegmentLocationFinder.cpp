@@ -18,6 +18,7 @@
 #include "m300_depth_filter/Dataset.hpp"
 
 #include <opencv2/features2d.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/core/eigen.hpp>
 
 #include <cmath>
@@ -37,41 +38,28 @@ int main(int argc, char** argv) {
   // for each of the images
   cv::Mat ref_img, ref_desc;
   std::vector<cv::KeyPoint> ref_kps;
+
   for (size_t i = 0; i < rgb_img_names.size(); ++i) {
     PRINT_DEBUG("Frame ID: %zu", i);
     cv::Mat mask_img = cv::imread(mask_img_names[i], cv::IMREAD_GRAYSCALE);
     cv::Mat mask_binary;
     cv::threshold(mask_img, mask_binary, 250, 255, cv::THRESH_BINARY);
 
-    std::vector<cv::Rect> boundary_boxes, patch_boxes;
+    std::vector<float> radius_list;
     std::vector<cv::Point2f> boundary_centers;
-    if (!finder.FindLocation(mask_binary, &boundary_boxes, 5, false, true))
+    if (!finder.FindLocation(mask_binary, &boundary_centers, &radius_list, 5,
+                             true, true))
       continue;
 
     cv::Mat rgb_img = cv::imread(rgb_img_names[i], cv::IMREAD_GRAYSCALE);
     cv::Mat rgb_show1 = rgb_img.clone();
 
-    for (cv::Rect& box : boundary_boxes) {
-      float cx = box.x + box.width / 2.0f;
-      float cy = box.y + box.height / 2.0f;
-      boundary_centers.push_back(cv::Point2f(cx, cy));
-
-      cv::Point2f tl = cv::Point2f(fmax(0, cx - 0.5 * patch_width),
-                                   fmax(0, cy - 0.5 * patch_height));
-      cv::Point2f br = cv::Point2f(fmin(rgb_img.cols, cx + 0.5 * patch_width),
-                                   fmin(rgb_img.rows, cy + 0.5 * patch_height));
-
-      patch_boxes.push_back(cv::Rect(tl, br));
-      cv::rectangle(rgb_show1, cv::Rect(tl, br), cv::Scalar(0, 0, 255), 2);
-    }
-
-    cv::imshow("rgb", rgb_show1);
-
-    // STEP: 在patch boxes 中提取特征点
+    // STEP: 在patch 中提取特征点
 
     cv::Mat patch_mask = cv::Mat::zeros(rgb_img.size(), CV_8UC1);
-    for (auto rect : patch_boxes) {
-      patch_mask(rect).setTo(255);
+    for (size_t i = 0; i < boundary_centers.size(); ++i) {
+      cv::circle(patch_mask, boundary_centers[i], radius_list[i]*1.5,
+                 cv::Scalar(255, 255, 255), -1);
     }
 
     cv::imshow("patch", patch_mask);
@@ -117,4 +105,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-

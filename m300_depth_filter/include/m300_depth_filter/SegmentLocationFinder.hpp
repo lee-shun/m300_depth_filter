@@ -25,9 +25,9 @@ namespace depth_filter {
 class SegmentLocationFinder {
  public:
   bool FindLocation(const cv::Mat binary_input,
-                    std::vector<cv::Rect>* boundary_box,
-                    const int morph_size = 0, const bool imshow_contours = true,
-                    const bool imshow_final_rect = true);
+                    std::vector<cv::Point2f>* centers,
+                    std::vector<float>* radius, const int morph_size,
+                    const bool imshow_contours, const bool imshow_final_rect);
 };
 }  // namespace depth_filter
 

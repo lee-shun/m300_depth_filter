@@ -18,9 +18,9 @@
 #include <opencv2/imgproc.hpp>
 
 bool depth_filter::SegmentLocationFinder::FindLocation(
-    const cv::Mat binary_input, std::vector<cv::Rect>* boundary_box,
-    const int morph_size, const bool imshow_contours,
-    const bool imshow_final_rect) {
+    const cv::Mat binary_input, std::vector<cv::Point2f>* centers,
+    std::vector<float>* radius_list, const int morph_size,
+    const bool imshow_contours, const bool imshow_final_rect) {
   cv::Mat binary = binary_input.clone();
 
   cv::Mat show_img;
@@ -63,35 +63,18 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
     cv::waitKey(0);
   }
 
-  // STEP: 3 find rectangles
+  // STEP: 3 find circle
   for (size_t i = 0; i < contours.size(); i++) {
     std::vector<cv::Point> points = contours[i];
-    cv::Rect box = cv::boundingRect(cv::Mat(points));
-    boundary_box->push_back(box);
+    cv::Point2f center;
+    float radius;
+    cv::minEnclosingCircle(points, center, radius);
+    centers->push_back(center);
+    radius_list->push_back(radius);
 
     if (imshow_final_rect) {
       PRINT_INFO("contour size: %zu", contours.size());
-      cv::Point2f center;
-      center.x = box.x + box.width / 2.0f;
-      center.y = box.y + box.height / 2.0f;
-      // draw rects
-      cv::rectangle(show_img, box, cv::Scalar(0, 255, 0), 2);
-
-      // center
-      cv::Point2f l, r, u, d;
-      l.x = center.x - 10;
-      l.y = center.y;
-
-      r.x = center.x + 10;
-      r.y = center.y;
-
-      u.x = center.x;
-      u.y = center.y - 10;
-
-      d.x = center.x;
-      d.y = center.y + 10;
-      cv::line(show_img, l, r, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
-      cv::line(show_img, u, d, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+      cv::circle(show_img, center, radius, cv::Scalar(0, 255, 0), 2);
     }
   }
 
