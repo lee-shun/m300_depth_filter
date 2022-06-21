@@ -21,31 +21,19 @@ bool Frame::DetectFeatures() {
   cv::Mat binary_seg;
   cv::threshold(rgb_seg_, binary_seg, 250, 255, cv::THRESH_BINARY);
 
-  std::vector<cv::Rect> boundary_boxes, patch_cir;
   std::vector<cv::Point2f> boundary_centers;
+  std::vector<float> radiuses;
   depth_filter::SegmentLocationFinder finder;
-  if (!finder.FindLocation(binary_seg, &boundary_boxes, 5, false, false)) {
+  if (!finder.FindLocation(binary_seg, &boundary_centers, &radiuses, 5, false,
+                           false)) {
     return false;
-  }
-
-  for (cv::Rect& box : boundary_boxes) {
-    float cx = box.x + box.width / 2.0f;
-    float cy = box.y + box.height / 2.0f;
-    boundary_centers.push_back(cv::Point2f(cx, cy));
-
-    cv::Point2f tl = cv::Point2f(fmax(0, cx - 0.5 * patch_width_),
-                                 fmax(0, cy - 0.5 * patch_height_));
-    cv::Point2f br =
-        cv::Point2f(fmin(binary_seg.cols, cx + 0.5 * patch_width_),
-                    fmin(binary_seg.rows, cy + 0.5 * patch_height_));
-
-    patch_cir.push_back(cv::Rect(tl, br));
   }
 
   // detect in patch boxes
   cv::Mat patch_mask = cv::Mat::zeros(rgb_img_.size(), CV_8UC1);
-  for (auto rect : patch_cir) {
-    patch_mask(rect).setTo(255);
+  for (size_t i = 0; i < boundary_centers.size(); ++i) {
+    cv::circle(patch_mask, boundary_centers[i], radiuses[i] * 1.5,
+               cv::Scalar(255, 255, 255), -1);
   }
 
   cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create();
