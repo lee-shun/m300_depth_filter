@@ -16,7 +16,7 @@
 #include "m300_depth_filter/AbsolutePoseRecover.hpp"
 int main(int argc, char** argv) {
   depth_filter::AbsolutePoseRecover recover(
-      13,
+      40,
       "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2/"
       "Monoslam_pose.csv",
       "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2/"

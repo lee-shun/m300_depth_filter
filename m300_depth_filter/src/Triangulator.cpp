@@ -22,7 +22,7 @@
 namespace depth_filter {
 void Triangulator::Run() {
   Dataset dataset(
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_51.2");
+      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_17.1");
 
   // STEP: 1 find ref frame
   Frame ref_frame, cur_frame;
