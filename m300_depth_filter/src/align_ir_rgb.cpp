@@ -97,59 +97,71 @@ int main(int argc, char** argv) {
   trans << 73.0345, -19.277, 6.88341e-16;
 
   // translate the rgb predicted fire point to the ir images
-  std::string ref_rgb_name =
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_41.2/"
-      "rgb/0.png";
-  std::string ref_mask_name =
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_41.2/"
-      "mask/0.png";
-  std::string ref_ir_name =
-      "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_41.2/ir/"
-      "0.png";
-  double depth = 51.2;
-  cv::Mat mask_img = cv::imread(ref_mask_name, cv::IMREAD_GRAYSCALE);
-  cv::Mat mask_binary;
-  cv::threshold(mask_img, mask_binary, 250, 255, cv::THRESH_BINARY);
+  std::string depth_list[5] = {"17.1", "22.7", "31.6", "41.2", "51.2"};
+  for (int i = 0; i < 5; i++) {
+    double depth = std::stod(depth_list[i]);
+    std::string ref_rgb_name =
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_" +
+        depth_list[i] + "/rgb/0.png";
+    std::string ref_mask_name =
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_" +
+        depth_list[i] + "/mask/0.png";
+    std::string ref_ir_name =
+        "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_" +
+        depth_list[i] + "/ir/0.png";
 
-  std::vector<float> radius_list;
-  std::vector<cv::Point2f> boundary_centers;
-  std::vector<std::vector<cv::Point>> contours;
-  FindFireContours(mask_binary, &boundary_centers, &radius_list, &contours, 1,
-                   true, true);
-  Eigen::Vector3d q_ir, q_rgb;
+    cv::Mat mask_img = cv::imread(ref_mask_name, cv::IMREAD_GRAYSCALE);
+    cv::Mat fire_mask, smoke_mask;
+    cv::threshold(mask_img, fire_mask, 250, 255, cv::THRESH_BINARY);
+    cv::threshold(mask_img, smoke_mask, 150, 255, cv::THRESH_TOZERO_INV);
+    cv::imshow("firemask", fire_mask);
+    cv::imshow("smokemask", smoke_mask);
+    cv::waitKey(0);
 
-  std::vector<std::vector<cv::Point>> traned_contours;
-  for (auto& cont : contours) {
-    std::vector<cv::Point> tmp_tran_cont;
-    for (auto& pt : cont) {
-      q_rgb << pt.x, pt.y, 1.0;
-      q_ir = rot * q_rgb + (1 / depth) * trans;
-      tmp_tran_cont.push_back(cv::Point(q_ir[0] / q_ir[2], q_ir[1] / q_ir[2]));
-    }
-    traned_contours.push_back(tmp_tran_cont);
-  }
-  cv::Mat ir_img = cv::imread(ref_ir_name);
-  cv::Mat ir_img_show = ir_img.clone();
-  cv::drawContours(ir_img_show, traned_contours, 0, cv::Scalar(0, 0, 0), 2);
-  cv::imshow("align", ir_img_show);
-  cv::waitKey(0);
+    std::vector<float> fire_radius_list, smoke_radius_list;
+    std::vector<cv::Point2f> fire_boundary_centers, smoke_boundary_centers;
+    std::vector<std::vector<cv::Point>> fire_contours, smoke_contours;
+    FindFireContours(fire_mask, &fire_boundary_centers, &fire_radius_list,
+                     &fire_contours, 1, true, true);
+    FindFireContours(smoke_mask, &smoke_boundary_centers, &smoke_radius_list,
+                     &smoke_contours, 1, true, true);
 
-  // half image align
-  cv::Mat rgb_img = cv::imread(ref_rgb_name);
-  for (size_t i = 0;
-       i < std::min(static_cast<int>(boundary_centers[0].x), rgb_img.cols);
-       ++i) {
-    for (size_t j = 0;
-         j < std::min(static_cast<int>(boundary_centers[0].y), rgb_img.rows);
-         ++j) {
+    Eigen::Vector3d q_ir, q_rgb;
 
-      q_rgb << i, j, 1;
-      q_ir = rot * q_rgb + (1 / depth) * trans;
-      ir_img.at<uchar>(i, j)
-
-
-
+    std::vector<std::vector<cv::Point>> fire_traned_contours;
+    for (auto& cont : fire_contours) {
+      std::vector<cv::Point> tmp_tran_cont;
+      for (auto& pt : cont) {
+        q_rgb << pt.x, pt.y, 1.0;
+        q_ir = rot * q_rgb + (1 / depth) * trans;
+        tmp_tran_cont.push_back(
+            cv::Point(q_ir[0] / q_ir[2], q_ir[1] / q_ir[2]));
+      }
+      fire_traned_contours.push_back(tmp_tran_cont);
     }
 
-    return 0;
+    std::vector<std::vector<cv::Point>> smoke_traned_contours;
+    for (auto& cont : smoke_contours) {
+      std::vector<cv::Point> tmp_tran_cont;
+      for (auto& pt : cont) {
+        q_rgb << pt.x, pt.y, 1.0;
+        q_ir = rot * q_rgb + (1 / depth) * trans;
+        tmp_tran_cont.push_back(
+            cv::Point(q_ir[0] / q_ir[2], q_ir[1] / q_ir[2]));
+      }
+      smoke_traned_contours.push_back(tmp_tran_cont);
+    }
+
+    cv::Mat ir_img = cv::imread(ref_ir_name);
+    cv::Mat ir_img_show = ir_img.clone();
+    cv::drawContours(ir_img_show, fire_traned_contours, -1,
+                     cv::Scalar(0, 0, 0), 2);
+    cv::drawContours(ir_img_show, smoke_traned_contours, -1,
+                     cv::Scalar(255, 255, 255), 1);
+    cv::imshow("align", ir_img_show);
+    cv::waitKey(0);
+    cv::imwrite(std::to_string(depth) + ".png", ir_img_show);
   }
+
+  return 0;
+}
