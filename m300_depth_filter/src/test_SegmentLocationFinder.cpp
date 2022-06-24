@@ -57,9 +57,16 @@ int main(int argc, char** argv) {
     // STEP: 在patch 中提取特征点
 
     cv::Mat patch_mask = cv::Mat::zeros(rgb_img.size(), CV_8UC1);
+      cv::Mat img_contour;
+      cv::cvtColor(rgb_img, img_contour, cv::COLOR_GRAY2BGR);
     for (size_t i = 0; i < boundary_centers.size(); ++i) {
-      cv::circle(patch_mask, boundary_centers[i], radius_list[i]*1.5,
+      cv::circle(patch_mask, boundary_centers[i], radius_list[i] * 1.5,
                  cv::Scalar(255, 255, 255), -1);
+
+      cv::circle(img_contour, boundary_centers[i], radius_list[i],
+                 cv::Scalar(0, 0, 255), 2);
+      cv::circle(img_contour, boundary_centers[i], radius_list[i] * 1.5,
+                 cv::Scalar(255, 0, 0), 2);
     }
 
     cv::imshow("patch", patch_mask);
@@ -79,6 +86,7 @@ int main(int argc, char** argv) {
       ref_img = rgb_img;
       ref_desc = descriptors;
       ref_kps = kps;
+      cv::imwrite("contour_rgb.png", img_contour);
     }
 
     if (i >= 23) {
@@ -96,6 +104,7 @@ int main(int argc, char** argv) {
       cv::Mat img_good_match;
       cv::drawMatches(ref_img, ref_kps, rgb_img, kps, good_matches,
                       img_good_match);
+      cv::imwrite("matches.png", img_good_match);
 
       cv::imshow("matches", img_good_match);
     }

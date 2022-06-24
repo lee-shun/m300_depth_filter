@@ -13,3 +13,6 @@ target_link_libraries(test_AbsolutePoseRecover ${PROJECT_NAME})
 
 add_executable(Triangulator Triangulator.cpp)
 target_link_libraries(Triangulator ${PROJECT_NAME})
+
+add_executable(align_ir_rgb align_ir_rgb.cpp)
+target_link_libraries(align_ir_rgb ${PROJECT_NAME})

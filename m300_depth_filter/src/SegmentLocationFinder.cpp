@@ -74,7 +74,8 @@ bool depth_filter::SegmentLocationFinder::FindLocation(
 
     if (imshow_final_rect) {
       PRINT_INFO("contour size: %zu", contours.size());
-      cv::circle(show_img, center, radius, cv::Scalar(0, 255, 0), 2);
+      cv::circle(show_img, center, radius, cv::Scalar(0, 0, 255), 2);
+      cv::circle(show_img, center, radius * 1.5, cv::Scalar(255, 0, 0), 2);
     }
   }
 
