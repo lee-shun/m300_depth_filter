@@ -110,6 +110,7 @@ int main(int argc, char** argv) {
         "/home/ls/m300_depth_filter/m300_depth_data/m300_grabbed_data_1_" +
         depth_list[i] + "/ir/0.png";
 
+    cv::Mat rgb_img = cv::imread(ref_rgb_name);
     cv::Mat mask_img = cv::imread(ref_mask_name, cv::IMREAD_GRAYSCALE);
     cv::Mat fire_mask, smoke_mask;
     cv::threshold(mask_img, fire_mask, 250, 255, cv::THRESH_BINARY);
@@ -125,6 +126,13 @@ int main(int argc, char** argv) {
                      &fire_contours, 1, true, true);
     FindFireContours(smoke_mask, &smoke_boundary_centers, &smoke_radius_list,
                      &smoke_contours, 1, true, true);
+
+    // draw the contours on the rgb image
+    cv::drawContours(rgb_img, smoke_contours, -1, cv::Scalar(255, 255, 255), 2);
+    cv::drawContours(rgb_img, fire_contours, -1, cv::Scalar(0, 0, 255), 2);
+    cv::imshow("align", rgb_img);
+    cv::waitKey(0);
+    cv::imwrite("rgb_" + depth_list[i] + ".png", rgb_img);
 
     Eigen::Vector3d q_ir, q_rgb;
 
@@ -154,13 +162,13 @@ int main(int argc, char** argv) {
 
     cv::Mat ir_img = cv::imread(ref_ir_name);
     cv::Mat ir_img_show = ir_img.clone();
-    cv::drawContours(ir_img_show, fire_traned_contours, -1,
-                     cv::Scalar(0, 0, 0), 2);
     cv::drawContours(ir_img_show, smoke_traned_contours, -1,
-                     cv::Scalar(255, 255, 255), 1);
+                     cv::Scalar(255, 255, 255), 2);
+    cv::drawContours(ir_img_show, fire_traned_contours, -1,
+                     cv::Scalar(0, 0, 255), 2);
     cv::imshow("align", ir_img_show);
     cv::waitKey(0);
-    cv::imwrite(std::to_string(depth) + ".png", ir_img_show);
+    cv::imwrite("ir_" + depth_list[i] + ".png", ir_img_show);
   }
 
   return 0;
